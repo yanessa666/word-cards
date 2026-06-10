@@ -851,7 +851,7 @@ function speakWord(word, btn) {
   playGoogleTTS(word, btn);
 }
 
-/* Speak long text — try Web Speech first, fallback to Google TTS by sentence */
+/* Speak long text — Web Speech first, fallback to Youdao sentence-by-sentence */
 function speakText(text, label) {
   if (webSpeechAvailable) {
     speechStarted = false;
@@ -862,31 +862,34 @@ function speakText(text, label) {
     currentUtterance = utter;
     utter.onstart = function() { speechStarted = true; };
     utter.onend = function() { hideSpeakingBar(); };
-    utter.onerror = function() { hideSpeakingBar(); };
+    utter.onerror = function() { hideSpeakingBar(); speakViaYoudao(text, label); };
     window.speechSynthesis.speak(utter);
     showSpeakingBar(label || text.slice(0, 30) + '...');
-    /* If Web Speech silently fails (common in Chrome file://), fall back to Google TTS */
+    /* If Web Speech silently fails (common in some browsers), fall back to Youdao */
     setTimeout(function() {
       if (!speechStarted) {
         window.speechSynthesis.cancel();
-        speakViaGoogleTTS(text, label);
+        speakViaYoudao(text, label);
       }
     }, 1200);
     return;
   }
-  speakViaGoogleTTS(text, label);
+  speakViaYoudao(text, label);
 }
 
-/* Split long text into sentences and play via Google TTS one by one */
+/* Split long text into sentences and play via Youdao Dict TTS one by one */
 var ttsQueue = [];
 var ttsPlaying = false;
-function speakViaGoogleTTS(text, label) {
+function speakViaYoudao(text, label) {
   var sentences = text.match(/[^.!?\n]+[.!?\n]*/g) || [text];
   ttsQueue = sentences.map(function(s) { return s.trim(); }).filter(Boolean);
   ttsPlaying = true;
   showSpeakingBar(label || '朗读文章');
   playNextTTS();
 }
+
+/* Keep old name as alias for compatibility */
+function speakViaGoogleTTS(text, label) { speakViaYoudao(text, label); }
 
 function playNextTTS() {
   if (!ttsPlaying || ttsQueue.length === 0) { ttsPlaying = false; hideSpeakingBar(); return; }
