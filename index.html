@@ -753,7 +753,7 @@ var ARTICLE_THEMES = {
   }
 };
 
-/* ========== Voice (Google TTS Primary + Web Speech Fallback) ========== */
+/* ========== Voice (Youdao Dict TTS Primary + Web Speech Fallback) ========== */
 var ttsAudio = null;
 var webSpeechAvailable = ('speechSynthesis' in window);
 var voiceList = [];
@@ -778,11 +778,31 @@ function getEnVoice() {
   return v || null;
 }
 
-/* Play audio via Google Translate TTS — works in all browsers including file:// */
+/* Play audio via Youdao Dict TTS — works in China */
 function playGoogleTTS(text, btn, onDone) {
   stopTTS();
-  var url = 'https://translate.google.com/translate_tts?ie=UTF-8&q=' +
-    encodeURIComponent(text) + '&tl=en&client=tw-ob';
+  /* For single words: use Youdao Dict audio (high quality, CN accessible) */
+  var isSingleWord = /^\s*\S+\s*$/.test(text);
+  var url;
+  if (isSingleWord) {
+    var w = text.trim().toLowerCase();
+    url = 'https://dict.youdao.com/dictvoice?audio=' + encodeURIComponent(w) + '&type=2';
+  } else {
+    /* For phrases/sentences: use Web Speech API directly */
+    if (webSpeechAvailable) {
+      var utter = new SpeechSynthesisUtterance(text);
+      utter.lang = 'en-US'; utter.rate = 0.88;
+      var ev = getEnVoice(); if (ev) utter.voice = ev;
+      utter.onend = function() { if (btn) btn.classList.remove('speaking'); hideSpeakingBar(); if (onDone) onDone(); };
+      utter.onerror = function() { if (btn) btn.classList.remove('speaking'); hideSpeakingBar(); if (onDone) onDone(); };
+      if (btn) btn.classList.add('speaking');
+      showSpeakingBar(text);
+      window.speechSynthesis.speak(utter);
+      return;
+    }
+    /* No Web Speech: fallback to Youdao with first few words */
+    url = 'https://dict.youdao.com/dictvoice?audio=' + encodeURIComponent(text.slice(0, 50)) + '&type=2';
+  }
   ttsAudio = new Audio(url);
   if (btn) btn.classList.add('speaking');
   showSpeakingBar(text);
@@ -794,14 +814,31 @@ function playGoogleTTS(text, btn, onDone) {
   ttsAudio.onerror = function() {
     if (btn) btn.classList.remove('speaking');
     hideSpeakingBar();
-    showToast('发音失败，请检查网络', true);
-    if (onDone) onDone();
+    /* Fallback to Web Speech if Youdao fails */
+    if (webSpeechAvailable) {
+      var utter2 = new SpeechSynthesisUtterance(text);
+      utter2.lang = 'en-US'; utter2.rate = 0.88;
+      var ev2 = getEnVoice(); if (ev2) utter2.voice = ev2;
+      utter2.onend = function() { if (onDone) onDone(); };
+      window.speechSynthesis.speak(utter2);
+    } else {
+      showToast('发音失败，请检查网络', true);
+      if (onDone) onDone();
+    }
   };
   ttsAudio.play().catch(function() {
     if (btn) btn.classList.remove('speaking');
     hideSpeakingBar();
-    showToast('发音失败，请检查网络', true);
-    if (onDone) onDone();
+    if (webSpeechAvailable) {
+      var utter3 = new SpeechSynthesisUtterance(text);
+      utter3.lang = 'en-US'; utter3.rate = 0.88;
+      var ev3 = getEnVoice(); if (ev3) utter3.voice = ev3;
+      utter3.onend = function() { if (onDone) onDone(); };
+      window.speechSynthesis.speak(utter3);
+    } else {
+      showToast('发音失败，请检查网络', true);
+      if (onDone) onDone();
+    }
   });
 }
 
@@ -809,7 +846,7 @@ function stopTTS() {
   if (ttsAudio) { ttsAudio.pause(); ttsAudio.onended = null; ttsAudio.onerror = null; ttsAudio = null; }
 }
 
-/* Speak a single word — Google TTS primary */
+/* Speak a single word — Youdao Dict TTS primary, Web Speech fallback */
 function speakWord(word, btn) {
   playGoogleTTS(word, btn);
 }
@@ -855,8 +892,18 @@ function playNextTTS() {
   if (!ttsPlaying || ttsQueue.length === 0) { ttsPlaying = false; hideSpeakingBar(); return; }
   var s = ttsQueue.shift();
   stopTTS();
-  var url = 'https://translate.google.com/translate_tts?ie=UTF-8&q=' +
-    encodeURIComponent(s) + '&tl=en&client=tw-ob';
+  /* Use Web Speech API for sentence-level playback (works without external network) */
+  if (webSpeechAvailable) {
+    var utter = new SpeechSynthesisUtterance(s);
+    utter.lang = 'en-US'; utter.rate = 0.88;
+    var ev = getEnVoice(); if (ev) utter.voice = ev;
+    utter.onend = function() { playNextTTS(); };
+    utter.onerror = function() { ttsPlaying = false; hideSpeakingBar(); showToast('朗读失败', true); };
+    window.speechSynthesis.speak(utter);
+    return;
+  }
+  /* Fallback: Youdao for short sentences */
+  var url = 'https://dict.youdao.com/dictvoice?audio=' + encodeURIComponent(s.slice(0, 100)) + '&type=2';
   ttsAudio = new Audio(url);
   ttsAudio.onended = function() { playNextTTS(); };
   ttsAudio.onerror = function() { ttsPlaying = false; hideSpeakingBar(); showToast('朗读失败', true); };
