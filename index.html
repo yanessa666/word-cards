@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>考研知识点学习平台</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --primary:#3b5998;--primary-light:#4a6fb5;--primary-dark:#2d4373;
+  --stat:#e67e22;--stat-light:#f39c12;--stat-dark:#d35400;
+  --math:#2ecc71;--math-light:#27ae60;--math-dark:#1e8449;
+  --poli:#e74c3c;--poli-light:#c0392b;--poli-dark:#a93226;
+  --bg:#f5f7fa;--card:#fff;--text:#2c3e50;--text-light:#7f8c8d;
+  --border:#e0e6ed;--shadow:0 2px 12px rgba(0,0,0,.08);
+  --radius:12px;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh;overflow-x:hidden}
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideIn{from{transform:translateX(100px);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+
+/* ===== HOME PAGE ===== */
+.home-page{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:40px 20px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);position:relative;overflow:hidden}
+.home-page::before{content:'';position:absolute;width:500px;height:500px;background:rgba(255,255,255,.05);border-radius:50%;top:-100px;left:-100px}
+.home-page::after{content:'';position:absolute;width:400px;height:400px;background:rgba(255,255,255,.04);border-radius:50%;bottom:-80px;right:-60px}
+.home-title{font-size:44px;font-weight:800;color:#fff;margin-bottom:8px;text-shadow:0 2px 4px rgba(0,0,0,.2);animation:fadeUp .6s ease;z-index:1}
+.home-subtitle{font-size:17px;color:rgba(255,255,255,.85);margin-bottom:50px;animation:fadeUp .6s ease .1s both;z-index:1}
+.cards-row{display:flex;gap:30px;flex-wrap:wrap;justify-content:center;max-width:1100px;z-index:1}
+.subject-card{width:320px;background:var(--card);border-radius:16px;overflow:hidden;cursor:pointer;transition:all .35s cubic-bezier(.4,0,.2,1);box-shadow:0 8px 30px rgba(0,0,0,.15);animation:fadeUp .6s ease both}
+.subject-card:nth-child(1){animation-delay:.15s}.subject-card:nth-child(2){animation-delay:.25s}.subject-card:nth-child(3){animation-delay:.35s}
+.subject-card:hover{transform:translateY(-10px) scale(1.02);box-shadow:0 20px 50px rgba(0,0,0,.22)}
+.card-header{height:150px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;position:relative;overflow:hidden}
+.card-header::before{content:'';position:absolute;width:200px;height:200px;background:rgba(255,255,255,.1);border-radius:50%;top:-60px;right:-40px}
+.card-header .icon{font-size:52px;z-index:1;filter:drop-shadow(0 2px 4px rgba(0,0,0,.2))}
+.card-header .label{font-size:24px;font-weight:700;color:#fff;z-index:1;text-shadow:0 1px 3px rgba(0,0,0,.2)}
+.card-body{padding:22px}
+.card-body p{color:var(--text-light);font-size:13px;margin-bottom:14px;line-height:1.7}
+.card-stats{display:flex;gap:16px;font-size:13px;color:var(--text-light)}
+.card-stats span{display:flex;align-items:center;gap:4px}
+.card-stats b{color:var(--text);font-weight:700}
+.stat-card .card-header{background:linear-gradient(135deg,var(--stat),var(--stat-light))}
+.math-card .card-header{background:linear-gradient(135deg,var(--math),var(--math-light))}
+.poli-card .card-header{background:linear-gradient(135deg,var(--poli),var(--poli-light))}
+
+/* ===== SECTION PAGE ===== */
+.section-page{display:none;min-height:100vh;background:var(--bg)}
+.section-page.active{display:block;animation:fadeIn .3s ease}
+.section-header{background:#fff;padding:14px 28px;display:flex;align-items:center;gap:14px;box-shadow:0 1px 4px rgba(0,0,0,.06);position:sticky;top:0;z-index:100}
+.back-btn{background:none;border:2px solid var(--border);border-radius:10px;padding:8px 16px;cursor:pointer;font-size:14px;display:flex;align-items:center;gap:6px;transition:all .2s;color:var(--text);font-weight:500}
+.back-btn:hover{border-color:var(--primary);color:var(--primary);background:rgba(59,89,152,.04)}
+.section-title{font-size:22px;font-weight:700}
+.section-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;color:#fff;font-weight:600;letter-spacing:.5px}
+.tab-bar{display:flex;gap:3px;margin-left:auto;background:#f0f2f5;border-radius:10px;padding:3px}
+.tab-btn{padding:8px 18px;border:none;background:transparent;border-radius:8px;cursor:pointer;font-size:13px;font-weight:500;transition:all .25s;color:var(--text-light);white-space:nowrap}
+.tab-btn:hover{color:var(--text)}
+.tab-btn.active{background:#fff;box-shadow:0 1px 6px rgba(0,0,0,.1);color:var(--text);font-weight:600}
+.tab-content{display:none;padding:24px 28px;max-width:1200px;margin:0 auto}
+.tab-content.active{display:block;animation:fadeUp .3s ease}
+
+/* ===== KNOWLEDGE POINTS ===== */
+.kp-container{display:grid;grid-template-columns:360px 1fr;gap:24px}
+.kp-sidebar{background:var(--card);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);height:fit-content;position:sticky;top:76px}
+.kp-sidebar h3{font-size:15px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+.kp-add-form{margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.kp-input{width:100%;padding:10px 14px;border:2px solid var(--border);border-radius:10px;font-size:14px;resize:vertical;min-height:72px;font-family:inherit;transition:border-color .2s;line-height:1.6}
+.kp-input:focus{outline:none;border-color:var(--primary)}
+.kp-add-btn{width:100%;padding:10px;border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;margin-top:8px;transition:all .2s}
+.kp-add-btn:hover{opacity:.9;transform:translateY(-1px)}
+.kp-list{max-height:420px;overflow-y:auto}
+.kp-item{display:flex;align-items:flex-start;gap:10px;padding:10px 10px;border-radius:8px;margin-bottom:4px;transition:all .2s;border:2px solid transparent}
+.kp-item:hover{background:#f8f9fb}
+.kp-item.selected{border-color:var(--primary);background:rgba(59,89,152,.03)}
+.kp-checkbox{width:18px;height:18px;margin-top:2px;accent-color:var(--primary);cursor:pointer;flex-shrink:0}
+.kp-text{flex:1;font-size:13px;line-height:1.6;word-break:break-word;color:#34495e}
+.kp-actions{display:flex;gap:2px;opacity:0;transition:opacity .2s;flex-shrink:0}
+.kp-item:hover .kp-actions{opacity:1}
+.kp-del-btn,.kp-edit-btn{background:none;border:none;cursor:pointer;font-size:14px;padding:4px 6px;border-radius:4px;transition:all .15s}
+.kp-del-btn{color:#e74c3c}.kp-del-btn:hover{background:#fde8e8}
+.kp-edit-btn{color:var(--primary)}.kp-edit-btn:hover{background:#e8ecf4}
+.kp-count{font-size:11px;color:var(--text-light);background:#f0f2f5;padding:2px 8px;border-radius:10px}
+.kp-main{display:flex;flex-direction:column;gap:20px}
+.kp-detail-card{background:var(--card);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow)}
+.kp-detail-card h3{font-size:17px;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+
+/* ===== QUESTION GENERATOR ===== */
+.q-gen-controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:20px}
+.q-type-btn{padding:8px 16px;border:2px solid var(--border);border-radius:10px;background:var(--card);cursor:pointer;font-size:13px;font-weight:500;transition:all .2s}
+.q-type-btn:hover{border-color:var(--primary-light)}
+.q-type-btn.active{border-color:var(--primary);background:var(--primary);color:#fff}
+.q-num-select{padding:6px 12px;border:2px solid var(--border);border-radius:10px;font-size:13px;background:var(--card)}
+.q-gen-btn{padding:10px 24px;border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px}
+.q-gen-btn:hover{opacity:.9;transform:translateY(-1px)}
+.q-gen-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.question-card{background:var(--card);border-radius:var(--radius);padding:24px;margin-bottom:16px;box-shadow:var(--shadow);border-left:4px solid var(--primary);transition:all .2s}
+.question-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.1)}
+.q-type-tag{display:inline-block;padding:3px 12px;border-radius:6px;font-size:12px;font-weight:600;color:#fff;margin-bottom:12px;letter-spacing:.3px}
+.q-type-tag.choice{background:linear-gradient(135deg,#3498db,#2980b9)}
+.q-type-tag.multi{background:linear-gradient(135deg,#9b59b6,#8e44ad)}
+.q-type-tag.essay{background:linear-gradient(135deg,#e67e22,#d35400)}
+.q-text{font-size:15px;font-weight:600;margin-bottom:16px;line-height:1.8}
+.q-options{margin-bottom:16px}
+.q-option{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;margin-bottom:6px;border-radius:10px;cursor:pointer;transition:all .2s;border:2px solid var(--border);font-size:14px}
+.q-option:hover{border-color:var(--primary-light);background:rgba(59,89,152,.02)}
+.q-option.correct{border-color:#27ae60;background:rgba(39,174,96,.05)}
+.q-option.correct .q-option-label{color:#27ae60}
+.q-option.wrong{border-color:#e74c3c;background:rgba(231,76,60,.05)}
+.q-option.wrong .q-option-label{color:#e74c3c}
+.q-option-label{font-weight:600;min-width:26px;color:var(--primary)}
+.q-option-text{flex:1;line-height:1.6}
+.q-essay-area{width:100%;min-height:100px;padding:12px;border:2px solid var(--border);border-radius:10px;font-size:14px;resize:vertical;font-family:inherit;line-height:1.7}
+.q-essay-area:focus{outline:none;border-color:var(--primary)}
+.q-answer{margin-top:16px;padding:18px;background:linear-gradient(135deg,#f0f7ff,#e8f4fd);border-radius:10px;display:none;border:1px solid #d4e6f9}
+.q-answer.show{display:block;animation:fadeUp .3s ease}
+.q-answer h4{font-size:14px;color:var(--primary);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.q-answer p{font-size:14px;line-height:1.8;color:#34495e;white-space:pre-line}
+.q-show-answer{padding:8px 18px;border:2px solid var(--primary);border-radius:10px;background:transparent;color:var(--primary);cursor:pointer;font-size:13px;font-weight:500;transition:all .2s;margin-top:8px}
+.q-show-answer:hover{background:var(--primary);color:#fff}
+.q-related-kp{font-size:12px;color:var(--text-light);margin-top:14px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.q-related-kp span{background:#f0f2f5;padding:3px 8px;border-radius:4px;font-size:11px}
+.no-selection-msg{text-align:center;padding:60px 20px;color:var(--text-light)}
+.no-selection-msg .big-icon{font-size:56px;margin-bottom:16px;opacity:.6}
+.no-selection-msg div:last-child{font-size:15px}
+
+/* ===== FRAMEWORK DIAGRAM ===== */
+.framework-container{background:var(--card);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow)}
+.framework-toolbar{display:flex;gap:10px;margin-bottom:16px;align-items:center;flex-wrap:wrap}
+.framework-toolbar select,.framework-toolbar button{padding:8px 14px;border:2px solid var(--border);border-radius:10px;font-size:13px;background:var(--card);cursor:pointer;transition:all .2s}
+.framework-toolbar button{background:var(--primary);color:#fff;border-color:var(--primary)}
+.framework-toolbar button:hover{opacity:.9}
+.framework-svg-wrap{width:100%;overflow:auto;border:2px dashed var(--border);border-radius:12px;background:#fafbfc;min-height:400px}
+.framework-svg-wrap svg{display:block;margin:0 auto}
+.empty-framework{text-align:center;padding:80px 20px;color:var(--text-light)}
+.empty-framework .big-icon{font-size:64px;margin-bottom:16px;opacity:.5}
+
+/* ===== EXAMPLES ===== */
+.example-form{background:var(--card);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);margin-bottom:24px}
+.example-form h3{font-size:16px;margin-bottom:14px}
+.example-textarea{width:100%;min-height:100px;padding:12px;border:2px solid var(--border);border-radius:10px;font-size:14px;resize:vertical;font-family:inherit;line-height:1.7;transition:border-color .2s}
+.example-textarea:focus{outline:none;border-color:var(--primary)}
+.ex-kp-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.ex-kp-tag{display:inline-flex;align-items:center;gap:4px;font-size:12px;padding:5px 12px;border:2px solid var(--border);border-radius:20px;cursor:pointer;transition:all .2s;user-select:none}
+.ex-kp-tag:hover{border-color:var(--primary-light)}
+.ex-kp-tag.checked{border-color:var(--primary);background:rgba(59,89,152,.06);font-weight:600}
+.ex-kp-tag input{display:none}
+.example-list .example-item{background:var(--card);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);margin-bottom:14px;transition:all .2s}
+.example-item:hover{box-shadow:0 4px 16px rgba(0,0,0,.1)}
+.example-item .ex-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.example-item .ex-kp{font-size:11px;padding:3px 10px;border-radius:12px;color:#fff;font-weight:500}
+.example-item .ex-time{font-size:12px;color:var(--text-light)}
+.example-item .ex-content{font-size:14px;line-height:1.8;background:#f8f9fb;padding:16px;border-radius:10px;white-space:pre-wrap;margin-bottom:14px;border-left:3px solid var(--border)}
+.example-item .ex-analysis{padding:16px;background:linear-gradient(135deg,#fef9e7,#fef5da);border-radius:10px;border-left:3px solid #f1c40f}
+.example-item .ex-analysis h4{font-size:13px;color:#b7950b;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.example-item .ex-analysis p{font-size:14px;line-height:1.8;white-space:pre-wrap;color:#5d4e37}
+
+/* ===== KP Searchable Multi-Select ===== */
+.kp-multiselect{position:relative;margin-bottom:14px}
+.kp-ms-input-wrap{display:flex;align-items:center;gap:8px;border:2px solid var(--border);border-radius:10px;padding:8px 12px;background:var(--card);cursor:text;transition:border-color .2s}
+.kp-ms-input-wrap:focus-within{border-color:var(--primary)}
+.kp-ms-search{flex:1;border:none;background:none;font-size:14px;outline:none;color:var(--text);min-width:120px}
+.kp-ms-search::placeholder{color:var(--text-light)}
+.kp-ms-placeholder{color:var(--text-light);font-size:14px;pointer-events:none}
+.kp-ms-selected{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.kp-ms-chip{display:inline-flex;align-items:center;gap:4px;font-size:12px;padding:4px 10px;border-radius:16px;color:#fff;font-weight:500;cursor:pointer;transition:opacity .2s}
+.kp-ms-chip:hover{opacity:.8}
+.kp-ms-chip .chip-x{font-size:14px;margin-left:2px;opacity:.7}
+.kp-ms-dropdown{position:absolute;top:100%;left:0;right:0;background:var(--card);border:2px solid var(--border);border-radius:10px;margin-top:4px;box-shadow:0 8px 24px rgba(0,0,0,.15);z-index:100;max-height:220px;overflow-y:auto;display:none}
+.kp-ms-dropdown.open{display:block}
+.kp-ms-option{padding:10px 14px;font-size:13px;cursor:pointer;transition:background .15s;border-bottom:1px solid rgba(0,0,0,.04)}
+.kp-ms-option:hover{background:rgba(59,89,152,.06)}
+.kp-ms-option.selected{background:rgba(59,89,152,.1);font-weight:600}
+.kp-ms-option .opt-check{font-size:14px;margin-right:8px;color:var(--primary)}
+.kp-ms-empty{padding:20px;text-align:center;color:var(--text-light);font-size:13px}
+.kp-ms-count{font-size:12px;color:var(--text-light);padding:8px 0 0}
+
+/* ===== Auto-gen button ===== */
+.auto-gen-btn{display:inline-flex;align-items:center;gap:6px;font-size:13px;padding:8px 16px;border:2px dashed var(--primary);border-radius:10px;background:transparent;color:var(--primary);cursor:pointer;transition:all .2s;font-weight:500}
+.auto-gen-btn:hover{background:var(--primary);color:#fff;border-style:solid}
+.auto-gen-btn:disabled{opacity:.5;cursor:default;border-color:var(--text-light);color:var(--text-light)}
+.auto-gen-btn:disabled:hover{background:transparent;color:var(--text-light)}
+
+/* ===== TOAST ===== */
+.toast{position:fixed;top:24px;right:24px;padding:12px 22px;border-radius:10px;color:#fff;font-size:14px;z-index:9999;animation:slideIn .3s;box-shadow:0 6px 20px rgba(0,0,0,.2);font-weight:500}
+.toast.success{background:linear-gradient(135deg,#27ae60,#2ecc71)}
+.toast.error{background:linear-gradient(135deg,#e74c3c,#c0392b)}
+.toast.info{background:linear-gradient(135deg,#3498db,#2980b9)}
+
+/* ===== MODAL ===== */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:1000;animation:fadeIn .2s;backdrop-filter:blur(2px)}
+.modal-box{background:var(--card);border-radius:16px;padding:28px;width:90%;max-width:520px;box-shadow:0 24px 60px rgba(0,0,0,.25);animation:fadeUp .3s ease}
+.modal-box h3{font-size:18px;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.modal-box textarea{width:100%;min-height:120px;padding:12px;border:2px solid var(--border);border-radius:10px;font-size:14px;resize:vertical;font-family:inherit;line-height:1.6}
+.modal-box textarea:focus{outline:none;border-color:var(--primary)}
+.modal-btns{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
+.modal-btn{padding:8px 20px;border-radius:10px;border:2px solid var(--border);background:var(--card);cursor:pointer;font-size:14px;transition:all .2s;font-weight:500}
+.modal-btn:hover{border-color:var(--primary-light)}
+.modal-btn.primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+.modal-btn.primary:hover{opacity:.9}
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#d0d5dd;border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:#a0a8b4}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:900px){
+  .cards-row{flex-direction:column;align-items:center}
+  .subject-card{width:100%;max-width:400px}
+  .kp-container{grid-template-columns:1fr}
+  .kp-sidebar{position:static}
+  .section-header{flex-wrap:wrap;padding:12px 16px;gap:10px}
+  .tab-bar{margin-left:0;width:100%;overflow-x:auto;padding-bottom:2px}
+  .tab-content{padding:16px}
+  .home-title{font-size:28px}
+  .home-subtitle{font-size:15px}
+  .q-gen-controls{gap:6px}
+}
+</style>
+</head>
+<body>
+
+<!-- ========== HOME PAGE ========== -->
+<div class="home-page" id="homePage">
+  <div class="home-title">📚 考研知识点学习平台</div>
+  <div class="home-subtitle">统计 · 数学 · 政治 — 历年真题 / 知识管理 / 框架梳理 / 例题解析</div>
+  <div class="cards-row">
+    <div class="subject-card stat-card" onclick="openSection('stat')">
+      <div class="card-header"><span class="icon">📊</span><span class="label">统计学</span></div>
+      <div class="card-body">
+        <p>描述统计、推断统计、回归分析、方差分析、假设检验等核心考研知识点</p>
+        <div class="card-stats"><span>📝 知识点: <b id="statCount">0</b></span><span>✏️ 例题: <b id="statExCount">0</b></span></div>
+      </div>
+    </div>
+    <div class="subject-card math-card" onclick="openSection('math')">
+      <div class="card-header"><span class="icon">📐</span><span class="label">数学</span></div>
+      <div class="card-body">
+        <p>高等数学、线性代数、概率论与数理统计等考研数学核心内容</p>
+        <div class="card-stats"><span>📝 知识点: <b id="mathCount">0</b></span><span>✏️ 例题: <b id="mathExCount">0</b></span></div>
+      </div>
+    </div>
+    <div class="subject-card poli-card" onclick="openSection('poli')">
+      <div class="card-header"><span class="icon">📖</span><span class="label">政治</span></div>
+      <div class="card-body">
+        <p>马原、毛中特、史纲、思修法基等考研政治知识体系</p>
+        <div class="card-stats"><span>📝 知识点: <b id="poliCount">0</b></span><span>✏️ 例题: <b id="poliExCount">0</b></span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== SECTION PAGES ========== -->
+<div class="section-page" id="statPage">
+  <div class="section-header">
+    <button class="back-btn" onclick="goHome()">← 返回</button>
+    <div class="section-title">📊 统计学</div>
+    <span class="section-badge" style="background:var(--stat)">Statistics</span>
+    <div class="tab-bar"><button class="tab-btn active" onclick="switchTab(this,'stat','kp')">📝 知识点</button><button class="tab-btn" onclick="switchTab(this,'stat','qg')">🎯 练习出题</button><button class="tab-btn" onclick="switchTab(this,'stat','fw')">🗺️ 框架图</button><button class="tab-btn" onclick="switchTab(this,'stat','ex')">✏️ 例题解析</button></div>
+  </div>
+  <div class="tab-content active" id="stat-kp"></div>
+  <div class="tab-content" id="stat-qg"></div>
+  <div class="tab-content" id="stat-fw"></div>
+  <div class="tab-content" id="stat-ex"></div>
+</div>
+
+<div class="section-page" id="mathPage">
+  <div class="section-header">
+    <button class="back-btn" onclick="goHome()">← 返回</button>
+    <div class="section-title">📐 数学</div>
+    <span class="section-badge" style="background:var(--math)">Mathematics</span>
+    <div class="tab-bar"><button class="tab-btn active" onclick="switchTab(this,'math','kp')">📝 知识点</button><button class="tab-btn" onclick="switchTab(this,'math','qg')">🎯 练习出题</button><button class="tab-btn" onclick="switchTab(this,'math','fw')">🗺️ 框架图</button><button class="tab-btn" onclick="switchTab(this,'math','ex')">✏️ 例题解析</button></div>
+  </div>
+  <div class="tab-content active" id="math-kp"></div>
+  <div class="tab-content" id="math-qg"></div>
+  <div class="tab-content" id="math-fw"></div>
+  <div class="tab-content" id="math-ex"></div>
+</div>
+
+<div class="section-page" id="poliPage">
+  <div class="section-header">
+    <button class="back-btn" onclick="goHome()">← 返回</button>
+    <div class="section-title">📖 政治</div>
+    <span class="section-badge" style="background:var(--poli)">Politics</span>
+    <div class="tab-bar"><button class="tab-btn active" onclick="switchTab(this,'poli','kp')">📝 知识点</button><button class="tab-btn" onclick="switchTab(this,'poli','qg')">🎯 练习出题</button><button class="tab-btn" onclick="switchTab(this,'poli','fw')">🗺️ 框架图</button><button class="tab-btn" onclick="switchTab(this,'poli','ex')">✏️ 例题解析</button></div>
+  </div>
+  <div class="tab-content active" id="poli-kp"></div>
+  <div class="tab-content" id="poli-qg"></div>
+  <div class="tab-content" id="poli-fw"></div>
+  <div class="tab-content" id="poli-ex"></div>
+</div>
+
+<script>
+// ==================== DATA LAYER ====================
+const SUBJECTS={stat:{name:'统计学',color:'#e67e22',icon:'📊'},math:{name:'数学',color:'#2ecc71',icon:'📐'},poli:{name:'政治',color:'#e74c3c',icon:'📖'}};
+
+function loadData(){try{return JSON.parse(localStorage.getItem('kypt_data'))||{}}catch(e){return{}}}
+function saveData(d){localStorage.setItem('kypt_data',JSON.stringify(d))}
+function getSubject(s){const d=loadData();if(!d[s])d[s]={kp:[],ex:[]};return d[s]}
+function setSubject(s,v){const d=loadData();d[s]=v;saveData(d)}
+function getKP(s){return getSubject(s).kp||[]}
+function getEX(s){return getSubject(s).ex||[]}
+function addKP(s,t){const d=getSubject(s);d.kp.push({id:Date.now()+Math.random(),text:t.trim(),created:new Date().toLocaleDateString('zh-CN')});setSubject(s,d)}
+function delKP(s,id){const d=getSubject(s);d.kp=d.kp.filter(k=>k.id!==id);setSubject(s,d)}
+function updateKP(s,id,t){const d=getSubject(s);const k=d.kp.find(x=>x.id===id);if(k)k.text=t.trim();setSubject(s,d)}
+function addEX(s,kpIds,t,an){const d=getSubject(s);d.ex.push({id:Date.now()+Math.random(),kpIds,text:t.trim(),analysis:an.trim(),created:new Date().toLocaleDateString('zh-CN')});setSubject(s,d)}
+function delEX(s,id){const d=getSubject(s);d.ex=d.ex.filter(e=>e.id!==id);setSubject(s,d)}
+
+// ==================== PRESET KNOWLEDGE POINTS ====================
+const PRESET={
+  stat:[
+    '描述统计：集中趋势（均值、中位数、众数）与离散程度（方差、标准差、极差、变异系数）',
+    '推断统计：参数估计（点估计、区间估计）与假设检验（z检验、t检验、卡方检验）',
+    '回归分析：一元线性回归模型 y=β₀+β₁x+ε，最小二乘法估计参数，决定系数R²',
+    '方差分析（ANOVA）：单因素方差分析，F检验统计量 F=MSA/MSE，方差齐性检验',
+    '概率分布：正态分布N(μ,σ²)、二项分布B(n,p)、泊松分布P(λ)、t分布、卡方分布',
+    '抽样方法：简单随机抽样、分层抽样、系统抽样、整群抽样的特点与适用场景',
+    '相关分析：Pearson相关系数r取值[-1,1]，Spearman秩相关，相关不等于因果',
+    '时间序列分析：趋势、季节性、循环、不规则变动的分解，移动平均法',
+    '置信区间：总体均值σ已知用z分布，σ未知用t分布，影响区间宽度的因素',
+    '非参数检验：卡方拟合优度检验，卡方独立性检验，Mann-Whitney U检验',
+  ],
+  math:[
+    '极限：ε-δ定义，洛必达法则求0/0和∞/∞型极限，两个重要极限',
+    '导数与微分：定义f\'(x)，链式法则，隐函数求导，参数方程求导，高阶导数',
+    '不定积分：换元积分法（第一类凑微分、第二类三角代换），分部积分法∫uv\'=uv-∫u\'v',
+    '定积分：牛顿-莱布尼茨公式，反常积分审敛法，定积分的几何应用（面积、体积、弧长）',
+    '矩阵与行列式：矩阵运算，行列式按行(列)展开，逆矩阵求法，矩阵的秩',
+    '特征值与特征向量：Ax=λx，特征方程|A-λI|=0，矩阵对角化，正交矩阵',
+    '随机变量与分布：离散型（0-1、二项、泊松），连续型（均匀、指数、正态），期望与方差',
+    '多元函数微分学：偏导数，全微分dz=∂z/∂x·dx+∂z/∂y·dy，条件极值与拉格朗日乘数法',
+    '级数：正项级数比较审敛法、比值审敛法，交错级数莱布尼茨判别法，幂级数收敛域',
+    '线性方程组：齐次方程组Ax=0基础解系，非齐次方程组解的结构，克拉默法则',
+  ],
+  poli:[
+    '唯物辩证法：两大总特征（联系与发展），三大规律（对立统一、质量互变、否定之否定）',
+    '认识论：实践是认识的基础（来源、动力、标准、目的），认识的反复性与无限性',
+    '马克思主义政治经济学：商品二因素（使用价值与价值），劳动二重性（具体劳动与抽象劳动）',
+    '科学社会主义：社会主义从空想到科学、从理论到实践的发展，共产主义社会基本特征',
+    '毛泽东思想：新民主主义革命总路线，农村包围城市武装夺取政权道路，三大法宝',
+    '邓小平理论：社会主义初级阶段，社会主义本质论，改革开放，社会主义市场经济',
+    '习近平新时代中国特色社会主义思想：新发展理念（创新协调绿色开放共享），主要矛盾转化',
+    '中国近现代史纲要：辛亥革命的意义与局限，五四运动，新民主主义革命胜利',
+    '思想道德与法治：社会主义核心价值观（富强民主文明和谐/自由平等公正法治/爱国敬业诚信友善）',
+  ]
+};
+
+// ==================== QUESTION BANK ====================
+// ===== 历年真题题库（每题带id用于去重） =====
+let _qid=0;
+function Q(kp,type,q,opts,ans,exp,year){return{id:++_qid,kp,type,q,opts,ans,exp,year:year||'历年'}}
+
+const QBANK={
+  stat:[
+    // ── 集中趋势与离散程度 ──
+    Q(['集中趋势','均值','中位数','众数'],'choice','以下关于集中趋势度量说法正确的是：',['均值不受极端值影响','中位数不受极端值影响','众数总是唯一存在的','均值一定等于中位数'],1,'中位数是数据排序后中间位置的值，不受极端值影响，是稳健的集中趋势度量。均值受所有数据值影响，尤其对极端值敏感。众数可能不存在或不唯一。','2019'),
+    Q(['集中趋势','均值','中位数'],'choice','一组数据：2, 3, 5, 7, 100，最能代表集中趋势的统计量是：',['均值 = 23.4','中位数 = 5','众数 = 2','极差 = 98'],1,'数据中有极端值100，均值=23.4被严重拉高，不能反映大部分数据的水平。中位数=5更稳健。存在极端值时应优先使用中位数。','2020'),
+    Q(['均值','加权平均'],'choice','某班50人，平均分72分；另一班30人，平均分80分，两班合并后平均分为：',['74分','75分','76分','78分'],2,'合并平均=(50×72+30×80)/(50+30)=(3600+2400)/80=75分。加权平均需考虑各组频数（权重）。','2018'),
+    Q(['方差','标准差','离散程度','变异系数'],'choice','比较两组量纲不同的数据的离散程度，应使用：',['方差','标准差','极差','变异系数'],3,'变异系数CV=s/x̄消除了量纲和均值水平的影响，适用于比较不同量纲或均值差异较大的数据组。','2021'),
+    Q(['方差','标准差'],'choice','若一组数据的每个值都加上常数c，则标准差：',['增加c','减少c','不变','变为原来的c倍'],2,'每个数据加常数c后，均值增加c，但各数据与均值的偏差不变，因此方差和标准差均不变。这是线性变换的重要性质：s(aX+c)=|a|s(X)。','2017'),
+    // ── 假设检验 ──
+    Q(['假设检验','z检验','t检验'],'choice','当总体方差未知且样本量较小时，应使用哪种检验方法？',['z检验','t检验','卡方检验','F检验'],1,'总体方差未知时需用样本方差s²代替σ²，此时检验统计量服从t分布。小样本(n<30)时t分布与正态分布差异明显，必须用t检验。','2019'),
+    Q(['假设检验','显著性水平','p值'],'choice','假设检验中，P值小于显著性水平α，则应：',['接受原假设','拒绝原假设','增加样本量','无法判断'],1,'P值是在H₀成立条件下，观察到当前或更极端结果的概率。P<α说明该结果在H₀下出现的概率很小（小概率事件），因此有足够统计证据拒绝H₀。','2020'),
+    Q(['假设检验','第一类错误','第二类错误'],'choice','假设检验中，增大样本量可以使：',['α减小，β增大','α和β都减小','α和β都增大','α增大，β减小'],1,'增大样本量可以同时减小第一类错误概率α和第二类错误概率β。因为样本量增大→检验功效(1-β)增大→β减小；同时样本量增大，检验更精确，α也可更小。','2022'),
+    Q(['假设检验','双侧检验','单侧检验'],'choice','某研究者想检验新药是否比旧药更有效，应使用：',['双侧检验','左侧检验','右侧检验','无需检验'],2,'"更有效"是单方向假设，新药效果>旧药，故用右侧检验（单侧）。若只检验"是否有差异"则用双侧检验。假设方向由研究目的决定。','2016'),
+    Q(['假设检验','原假设','备择假设'],'multi','关于假设检验的设定，以下正确的有：',['原假设与备择假设互斥且完备','等号总是出现在原假设中','犯第一类错误的概率就是显著性水平α','接受原假设等于证明原假设为真'],[0,1,2],'A正确，H₀与H₁互斥且穷尽所有可能；B正确，等号(=,≥,≤)总在H₀中，因为P值计算需以等号为起点；C正确，α就是犯"弃真"错误的概率；D错误，"接受H₀"只是没有足够证据拒绝，不代表H₀为真。','2023'),
+    // ── 回归分析 ──
+    Q(['回归分析','最小二乘法','线性回归','R²'],'multi','关于一元线性回归分析，以下说法正确的有：',['最小二乘法使残差平方和∑(yi-ŷi)²最小','决定系数R²越接近1拟合越好','回归系数显著性检验用t检验','残差必须服从正态分布才能建立回归'],[0,1,2],'A正确，OLS的核心就是最小化残差平方和；B正确，R²∈[0,1]，衡量回归方程对y变异的解释比例；C正确，回归系数的显著性用t检验；D不严谨，正态性假设针对误差项ε，不是残差本身，且回归模型的建立不严格依赖正态性。','2020'),
+    Q(['回归分析','R²','决定系数'],'choice','回归分析中R²=0.85，意味着：',['自变量与因变量相关系数为0.85','因变量85%的变异可由回归方程解释','回归系数为0.85','残差的方差为0.85'],1,'R²=0.85表示因变量的总变异中85%可由回归方程解释，即回归方程的拟合优度为85%。注意R²与相关系数r的区别：在一元线性回归中R²=r²，但概念不同。','2018'),
+    Q(['回归分析','残差','回归诊断'],'choice','回归分析中，残差图呈现喇叭口形状（残差随拟合值增大而增大），说明：',['模型拟合良好','存在异方差性','存在自相关','存在多重共线性'],1,'残差图呈喇叭口形状是异方差性的典型表现，即误差项方差不相等。处理方法：加权最小二乘法或对因变量取对数变换。','2021'),
+    // ── 方差分析 ──
+    Q(['方差分析','ANOVA','F检验'],'choice','单因素方差分析中，F统计量的计算公式为：',['F=MSE/MSA','F=MSA/MSE','F=SSA/SSE','F=SST/SSA'],1,'F=MSA/MSE。MSA=SSA/(k-1)为组间均方（因素影响），MSE=SSE/(n-k)为组内均方（随机误差）。F值越大，组间差异相对组内差异越显著，越有理由拒绝各组均值相等的H₀。','2019'),
+    Q(['方差分析','ANOVA','前提条件'],'multi','方差分析的前提条件包括：',['各组总体服从正态分布','各组总体方差相等（方差齐性）','各组样本量必须相等','各观测值相互独立'],[0,1,3],'方差分析三个前提：①正态性（各组总体正态分布）②方差齐性（各组总体方差相等）③独立性（各观测值相互独立）。各组样本量不一定相等。','2022'),
+    // ── 概率分布 ──
+    Q(['正态分布','概率分布'],'choice','若X~N(μ,σ²)，则X落在(μ-σ, μ+σ)内的概率约为：',['68.27%','95.45%','99.73%','50%'],0,'3σ法则：P(μ-σ<X<μ+σ)≈68.27%；P(μ-2σ<X<μ+2σ)≈95.45%；P(μ-3σ<X<μ+3σ)≈99.73%。这是正态分布最重要的性质，也是统计推断的理论基础。','2017'),
+    Q(['正态分布','标准正态'],'choice','设X~N(0,1)，P(X>1.96)=：',['0.025','0.05','0.01','0.975'],0,'标准正态分布中，P(|X|>1.96)=0.05，因此P(X>1.96)=0.025。1.96是双侧95%置信区间对应的临界值，是统计学中最重要的数值之一。','2020'),
+    Q(['二项分布','概率计算'],'choice','设X~B(10,0.3)，则E(X)和D(X)分别为：',['3和2.1','3和3','10和0.3','0.3和2.1'],0,'二项分布B(n,p)中E(X)=np=10×0.3=3，D(X)=np(1-p)=10×0.3×0.7=2.1。这是二项分布数字特征的基本计算。','2023'),
+    Q(['泊松分布','概率分布'],'choice','设X~P(2)，则P(X=0)=：',['0','e⁻²','1-e⁻²','2e⁻²'],1,'泊松分布P(X=k)=e⁻λ·λᵏ/k!。P(X=0)=e⁻²·2⁰/0!=e⁻²≈0.1353。泊松分布常用于描述稀有事件在单位时间/空间内的发生次数。','2018'),
+    // ── 抽样方法 ──
+    Q(['抽样方法','分层抽样','整群抽样'],'multi','关于抽样方法，以下说法正确的有：',['简单随机抽样每个个体入样概率相等','分层抽样在每层内进行简单随机抽样','整群抽样对抽中的群进行全面调查','系统抽样一定是等概率抽样'],[0,1,2],'A正确，简单随机抽样是最基本的等概率抽样；B正确，分层抽样先按特征分层，再在各层内独立抽样；C正确，整群抽样对抽中的群做普查；D不完全正确，当总体排列有周期性规律时，系统抽样可能产生偏倚。','2021'),
+    Q(['抽样方法','分层抽样'],'choice','分层抽样的主要目的是：',['减少抽样成本','提高估计精度','简化抽样过程','消除非抽样误差'],1,'分层抽样的核心目的是提高估计精度。通过将总体分为层内同质、层间异质的子总体，使各层内方差较小，从而降低总估计方差。分配方法有比例分配和最优分配(Neyman分配)。','2016'),
+    // ── 相关分析 ──
+    Q(['相关分析','Pearson','相关系数'],'choice','Pearson相关系数r=0.85，以下说法正确的是：',['两变量存在因果关系','r²=0.7225说明72.25%的变异被线性解释','相关性较弱','r可以大于1'],1,'r=0.85说明较强正线性相关，但相关≠因果。r²=0.7225即决定系数，表示x的变异中72.25%可由y的线性关系解释。r∈[-1,1]，不可能大于1。','2022'),
+    Q(['相关分析','相关系数'],'choice','两个变量之间的Pearson相关系数r=0，则：',['两变量无任何关系','两变量无线性相关关系','两变量相互独立','两变量的协方差为正'],1,'r=0只说明两变量之间不存在线性相关关系，但可能存在非线性关系（如U形关系）。r=0等价于协方差为0，但不能推出相互独立（独立是更强的条件）。','2019'),
+    // ── 置信区间 ──
+    Q(['置信区间','区间估计'],'essay','请解释置信水平95%的置信区间的含义，以及影响置信区间宽度的主要因素。','95%置信区间的含义：如果重复抽样100次，大约有95次构造的置信区间会包含总体参数的真值。注意：不能说"总体参数有95%的概率落在该区间内"，因为总体参数是常数，不是随机变量。\n\n影响区间宽度的主要因素：\n1. 样本量n：n越大，标准误越小，区间越窄\n2. 置信水平1-α：置信水平越高（如99%>95%），区间越宽\n3. 总体方差σ²：方差越大，数据越分散，区间越宽\n4. 抽样方式：不同抽样方法影响标准误的计算','2020'),
+    Q(['置信区间','样本量'],'choice','若置信水平从95%提高到99%，则置信区间：',['变宽','变窄','不变','无法判断'],0,'置信水平提高意味着更大的把握包含总体参数，需要更宽的区间。99%对应的z值2.576>95%的1.96，因此区间宽度增加。精度与可靠性是一对矛盾。','2023'),
+    // ── 时间序列 ──
+    Q(['时间序列','趋势','季节性'],'multi','时间序列的组成成分包括：',['趋势成分（T）','季节成分（S）','循环成分（C）','不规则变动（I）'],[0,1,2,3],'时间序列四成分：T（长期趋势方向）、S（固定周期规律变化）、C（非固定周期的波动）、I（随机因素）。加法模型Y=T+S+C+I，乘法模型Y=T×S×C×I。','2021'),
+    // ── 非参数检验 ──
+    Q(['非参数检验','卡方检验'],'choice','卡方独立性检验的自由度计算公式为：',['(r-1)+(c-1)','(r-1)(c-1)','rc-1','r+c-1'],1,'列联表中卡方独立性检验的自由度df=(r-1)(c-1)，r为行数，c为列数。自由度反映的是可以自由取值的格子数，在行合计和列合计固定的约束下，只有(r-1)(c-1)个格子可以自由变化。','2019'),
+    Q(['非参数检验','卡方拟合优度'],'choice','卡方拟合优度检验用于检验：',['两组变量是否独立','总体分布是否与指定分布吻合','两组均值是否相等','两组方差是否相等'],1,'卡方拟合优度检验检验的是观测频数与期望频数是否吻合，即总体是否服从某指定分布。A是独立性检验；C和D分别用t检验和F检验。','2017'),
+    // ── 综合应用 ──
+    Q(['假设检验','方差分析','综合'],'essay','请说明方差分析与两样本t检验的关系，以及方差分析的适用条件。','方差分析与t检验的关系：\n\n1. 两组比较时，方差分析的F检验与双侧t检验等价，F=t²\n2. 两组以上比较时，不能用多次t检验（会增加第一类错误率），必须用方差分析\n3. 若做C次t检验，总体α≈1-(1-α₀)ᶜ，远大于α₀\n\n方差分析适用条件：\n1. 正态性：各组总体服从正态分布\n2. 方差齐性：各组总体方差相等（Bartlett检验或Levene检验）\n3. 独立性：各观测值相互独立\n\n若方差齐性不满足，可用Welch方差分析或非参数的Kruskal-Wallis检验。','2022'),
+    Q(['回归分析','相关分析','综合'],'multi','关于回归分析与相关分析的区别与联系，以下正确的有：',['相关分析中两变量地位对等','回归分析中要区分自变量和因变量','相关系数r与回归系数b同号','回归分析可以推断因果关系'],[0,1,2],'A正确，相关分析中x与y对称；B正确，回归分析需指定因变量y和自变量x；C正确，b=r(sy/sx)，所以r与b同号；D错误，回归分析也不能直接推断因果关系，因果关系需要实验设计或因果推断方法。','2023'),
+  ],
+  math:[
+    // ── 极限 ──
+    Q(['极限','洛必达法则'],'choice','lim(x→0)sinx/x的值为：',['0','1','∞','不存在'],1,'重要极限。由夹逼定理可证lim(x→0)sinx/x=1。也可用洛必达法则：原式=lim(x→0)cosx/1=cos0=1。此极限是推导很多极限的基础。','2019'),
+    Q(['极限','洛必达法则'],'choice','lim(x→0)(eˣ-1)/x=：',['0','1','e','∞'],1,'洛必达法则：0/0型，原式=lim(x→0)eˣ/1=e⁰=1。也可用等价无穷小：eˣ-1~x(x→0)，原式=lim x/x=1。','2020'),
+    Q(['极限','洛必达法则'],'choice','lim(x→∞)x/eˣ=：',['1','0','∞','e'],1,'∞/∞型用洛必达：原式=lim(x→∞)1/eˣ=0。指数函数增长远快于多项式，这是一个重要的增长率比较结论。','2018'),
+    Q(['极限','ε-δ'],'choice','lim(x→a)f(x)=L的ε-δ定义是：',['∀ε>0,∃δ>0,0<|x-a|<δ⇒|f(x)-L|<ε','∃ε>0,∀δ>0,0<|x-a|<δ⇒|f(x)-L|<ε','∀δ>0,∃ε>0,|f(x)-L|<ε⇒0<|x-a|<δ','以上都不对'],0,'ε-δ定义：∀ε>0,∃δ>0，当0<|x-a|<δ时，有|f(x)-L|<ε。ε刻画f(x)与L的接近程度，δ刻画x与a的接近程度，δ依赖于ε。','2021'),
+    Q(['极限','重要极限'],'choice','lim(n→∞)(1+1/n)ⁿ=：',['1','e','∞','0'],1,'这是自然常数e的定义。e=lim(n→∞)(1+1/n)ⁿ≈2.71828。更一般形式：lim(x→∞)(1+k/x)^(lx)=eᵏ。这是微积分中第二个重要极限。','2017'),
+    Q(['极限','夹逼定理'],'multi','使用夹逼定理求极限需要满足的条件有：',['找到两个函数g(x)≤f(x)≤h(x)','g(x)和h(x)的极限相等','f(x)必须是连续函数','f(x)的极限必须存在'],[0,1],'A正确，夹逼定理需要g(x)≤f(x)≤h(x)；B正确，lim g=lim h=A时lim f=A；C不需要，夹逼定理不要求f连续；D是结论而非条件，正是通过夹逼定理来证明极限存在。','2022'),
+    // ── 导数与微分 ──
+    Q(['导数','链式法则'],'choice','设y=sin(x²)，则y\'=：',['cos(x²)','2xcos(x²)','2sin(x²)','x²cos(x²)'],1,'链式法则：设u=x²，y=sinu，dy/dx=(dy/du)(du/dx)=cosu·2x=2xcos(x²)。复合函数求导要"由外向内，逐层求导"。','2019'),
+    Q(['导数','隐函数求导'],'choice','设x²+y²=25，则dy/dx=：',['-x/y','x/y','-y/x','y/x'],0,'两边对x求导：2x+2y·(dy/dx)=0，解得dy/dx=-x/y。隐函数求导的关键是y是x的函数，遇到y要对x链式求导。','2020'),
+    Q(['导数','极值','驻点'],'multi','关于函数极值，以下说法正确的有：',['可导函数的极值点一定是驻点','驻点一定是极值点','二阶导数f\'\'(x₀)>0对应极小值','闭区间上最值可能在端点取得'],[0,2,3],'A正确（费马引理），可导极值点处f\'(x₀)=0即驻点；B错误，驻点不一定是极值点，如y=x³在x=0处f\'=0但不是极值；C正确，f\'\'>0说明凹向上故为极小值；D正确，闭区间上连续函数的最值在极值点或端点处取得。','2021'),
+    Q(['导数','极值','最值'],'choice','函数f(x)=x³-3x在[-2,2]上的最大值为：',['0','2','4','-2'],2,'f\'(x)=3x²-3=0→x=±1。f(1)=-2(极小)，f(-1)=2(极大)，f(-2)=-2(端点)，f(2)=2(端点)。最大值为2，在x=-1和x=2处取得。闭区间最值要比较极值点和端点。','2018'),
+    Q(['导数','中值定理','拉格朗日'],'choice','拉格朗日中值定理的条件之一是f(x)在[a,b]上：',['可导','连续','有界','单调'],1,'拉格朗日中值定理条件：f在[a,b]连续、在(a,b)可导，则∃ξ∈(a,b)使f\'(ξ)=[f(b)-f(a)]/(b-a)。连续性是闭区间上的条件，可导性是开区间上的条件。','2022'),
+    Q(['导数','高阶导数'],'choice','设y=eˣ，则y⁽ⁿ⁾=：',['eˣ','neˣ','eⁿˣ','n!eˣ'],0,'y=eˣ的任意阶导数都是eˣ，这是指数函数最特殊的性质。对比：y=xⁿ的n阶导数为n!，更高阶为0。','2016'),
+    // ── 积分 ──
+    Q(['不定积分','换元积分'],'choice','∫2x·e^(x²)dx=：',['e^(x²)+C','2e^(x²)+C','x²e^(x²)+C','e^(2x)+C'],0,'凑微分法：令u=x²，du=2xdx。∫2x·e^(x²)dx=∫e^u du=e^u+C=e^(x²)+C。关键是识别被积函数中的微分关系。','2020'),
+    Q(['不定积分','分部积分'],'choice','∫x·eˣdx=：',['xeˣ-eˣ+C','xeˣ+eˣ+C','eˣ+C','x²eˣ/2+C'],0,'分部积分法：令u=x,dv=eˣdx，则du=dx,v=eˣ。∫xeˣdx=xeˣ-∫eˣdx=xeˣ-eˣ+C=(x-1)eˣ+C。选uv时要使v容易求且∫vdu比∫udv简单。','2019'),
+    Q(['定积分','牛顿-莱布尼茨'],'choice','∫(0→1)x²dx=：',['1/2','1/3','1/4','1'],1,'牛顿-莱布尼茨公式：∫(0→1)x²dx=[x³/3]₀¹=1/3-0=1/3。该公式建立了定积分与不定积分的联系，是微积分基本定理。','2017'),
+    Q(['定积分','奇偶函数'],'choice','∫(-1→1)x³dx=：',['0','1/4','-1/4','2'],0,'x³是奇函数，积分区间关于原点对称，故∫₋₁¹x³dx=0。奇函数在对称区间上的积分为0，偶函数则为2倍的正半区间积分。利用对称性可简化计算。','2023'),
+    Q(['定积分','变限积分'],'choice','设F(x)=∫(0→x)eᵗ²dt，则F\'(x)=：',['eˣ²','eˣ','2xeˣ²','x²eˣ²'],0,'变限积分求导公式：d/dx[∫(a→x)f(t)dt]=f(x)。因此F\'(x)=eˣ²。注意被积函数中的t是哑变量，求导时直接代入上限x。','2021'),
+    Q(['反常积分','审敛'],'choice','∫(1→∞)1/x²dx=：',['1','0','∞','1/2'],0,'∫(1→∞)1/x²dx=lim(b→∞)[-1/x]₁ᵇ=lim(b→∞)(-1/b+1)=1。p级数∫(1→∞)1/xᵖdx当p>1时收敛，p≤1时发散。此处p=2>1，收敛。','2018'),
+    // ── 线性代数 ──
+    Q(['矩阵','逆矩阵','行列式'],'choice','n阶方阵A可逆的充要条件是：',['A≠O（零矩阵）','|A|≠0','A的特征值都为正','A是对称矩阵'],1,'A可逆⇔|A|≠0。这是判断可逆最基本的条件。A≠O不保证可逆（如非零奇异矩阵）；特征值都为正是正定条件；对称矩阵不一定可逆（如零矩阵对称但不可逆）。','2019'),
+    Q(['特征值','特征向量'],'choice','3阶矩阵A的特征值为1,2,3，则|A|=：',['1','6','5','0'],1,'|A|=λ₁×λ₂×λ₃=1×2×3=6。迹tr(A)=1+2+3=6。这是特征值的基本性质：行列式=特征值之积，迹=特征值之和。','2020'),
+    Q(['特征值','特征向量'],'choice','设A的特征值为λ，对应的特征向量为α，则A²的特征值和特征向量为：',['λ²和α','λ和α²','2λ和α','λ和2α'],0,'Aα=λα，则A²α=A(Aα)=A(λα)=λAα=λ(λα)=λ²α。因此A²的特征值为λ²，特征向量仍为α。推广：f(A)的特征值为f(λ)，特征向量不变。','2022'),
+    Q(['行列式','性质'],'choice','交换行列式的两行，行列式的值：',['不变','变号','变为0','变为原来的2倍'],1,'行列式性质：交换两行（列），行列式变号。这是行列式最基本性质之一。由此可推：若两行相同，则D=-D，故D=0。','2017'),
+    Q(['线性方程组','基础解系'],'multi','关于齐次线性方程组Ax=0，以下说法正确的有：',['有非零解当且仅当r(A)<n','基础解系含n-r(A)个解向量','基础解系的线性组合仍为解','解空间的维数等于r(A)'],[0,1,2],'A正确，r(A)<n时有自由变量故有非零解；B正确，基础解系含n-r(A)个线性无关解；C正确，齐次方程组解具有线性性质；D错误，解空间维数为n-r(A)，不等于r(A)。','2021'),
+    Q(['线性方程组','非齐次'],'choice','非齐次方程组Ax=b有唯一解的条件是：',['r(A)=r(A|b)=n','r(A)<n','r(A)=r(A|b)<n','Ax=0只有零解'],0,'非齐次方程组有唯一解⇔r(A)=r(A增广b)=n（未知数个数）。r(A)<r(A|b)无解；r(A)=r(A|b)<n有无穷多解。','2023'),
+    Q(['矩阵','秩'],'choice','若AB=O（零矩阵），则r(A)+r(B)满足：',['r(A)+r(B)≤n','r(A)+r(B)≥n','r(A)+r(B)=n','无法判断'],0,'AB=O意味着B的列向量都是Ax=0的解。由解空间维数定理：r(A)+r(B)≤n（A为m×n矩阵，B为n×s矩阵）。这是矩阵秩的重要不等式。','2018'),
+    // ── 多元微积分 ──
+    Q(['偏导数','多元函数','拉格朗日'],'essay','请简述用拉格朗日乘数法求条件极值的步骤。','拉格朗日乘数法步骤：\n\n1. 设目标函数f(x,y)在约束g(x,y)=0下的极值\n2. 构造拉格朗日函数L(x,y,λ)=f(x,y)+λg(x,y)\n3. 求偏导并令其为零：\n   ∂L/∂x=0 → f_x+λg_x=0\n   ∂L/∂y=0 → f_y+λg_y=0\n   ∂L/∂λ=0 → g(x,y)=0\n4. 解方程组得驻点(x₀,y₀,λ₀)\n5. 根据实际问题判断极大/极小\n\n本质：在约束曲面上找使∇f与∇g平行的点，即梯度方向一致时f取条件极值。','2020'),
+    Q(['偏导数','全微分'],'choice','函数z=x²y³的全微分dz=：',['2xy³dx+3x²y²dy','x²y³dx+x²y³dy','2xy³+3x²y²','y³dx+x²dy'],0,'dz=(∂z/∂x)dx+(∂z/∂y)dy=2xy³dx+3x²y²dy。全微分是偏导数的线性组合，是多元函数微分学的核心概念。','2019'),
+    // ── 级数 ──
+    Q(['级数','收敛','比值审敛'],'choice','正项级数∑aₙ，若lim(n→∞)aₙ₊₁/aₙ=ρ，则：',['ρ<1时收敛，ρ>1时发散','ρ<1时发散，ρ>1时收敛','ρ=1时收敛','以上都不对'],0,'比值审敛法（达朗贝尔判别法）：ρ<1级数收敛，ρ>1级数发散，ρ=1判别法失效需用其他方法。这是判断正项级数敛散性最常用的方法之一。','2022'),
+    Q(['级数','收敛','莱布尼茨'],'choice','交错级数∑(-1)ⁿaₙ收敛的充分条件是：',['aₙ单调递减且lim aₙ=0','aₙ单调递增','lim aₙ=0即可','aₙ>0'],0,'莱布尼茨判别法：若aₙ单调递减且lim aₙ=0，则交错级数∑(-1)ⁿaₙ收敛。注意这只是充分条件，不满足时级数仍可能收敛（条件收敛）。','2021'),
+    Q(['级数','幂级数'],'choice','幂级数∑(n=0→∞)xⁿ的收敛域为：',['(-1,1)','[-1,1]','(-1,1]','(-∞,+∞)'],0,'∑xⁿ是几何级数，当|x|<1时收敛，|x|≥1时发散。收敛半径R=1，收敛域为(-1,1)。由公式R=1/limⁿ√|aₙ|=1/1=1。','2017'),
+    // ── 概率论 ──
+    Q(['随机变量','概率分布','期望','方差'],'multi','以下关于常见概率分布的说法正确的有：',['二项分布B(n,p)的E(X)=np','泊松分布P(λ)的E(X)=D(X)=λ','正态分布N(μ,σ²)关于x=μ对称','指数分布具有无记忆性'],[0,1,2,3],'A正确，E(X)=np，D(X)=np(1-p)；B正确，这是泊松分布的特征性质；C正确，正态密度函数关于μ对称；D正确，P(X>s+t|X>s)=P(X>t)是指数分布特有的无记忆性。','2023'),
+    Q(['期望','方差','协方差'],'choice','设E(X)=2,E(Y)=3,D(X)=4,D(Y)=9,Cov(X,Y)=-3，则D(X-Y)=：',['16','19','10','4'],1,'D(X-Y)=D(X)+D(Y)-2Cov(X,Y)=4+9-2×(-3)=16。注意符号：D(X-Y)=D(X)+D(Y)-2Cov(X,Y)，而D(X+Y)=D(X)+D(Y)+2Cov(X,Y)。','2020'),
+    Q(['概率','条件概率','贝叶斯'],'choice','已知P(A)=0.6,P(B|A)=0.8,P(B|Ā)=0.3，则P(A|B)=：',['0.8','0.6','0.9','0.5'],0,'贝叶斯公式：P(A|B)=P(B|A)P(A)/P(B)。先求P(B)=P(B|A)P(A)+P(B|Ā)P(Ā)=0.8×0.6+0.3×0.4=0.48+0.12=0.6。P(A|B)=0.48/0.6=0.8。','2019'),
+    Q(['概率','全概率公式'],'essay','请说明全概率公式和贝叶斯公式的关系，并举例说明贝叶斯公式的应用。','全概率公式与贝叶斯公式的关系：\n\n全概率公式：P(B)=∑P(B|Aᵢ)P(Aᵢ)\n将B的概率分解为各情形下的加权平均。\n\n贝叶斯公式：P(Aᵢ|B)=P(B|Aᵢ)P(Aᵢ)/P(B)\n是全概率公式的"逆用"——已知结果B，推断原因Aᵢ的概率。\n\n应用举例：\n某病发病率1%，检测准确率99%（即患病者99%阳性，健康者99%阴性）。\n求：检测阳性时实际患病的概率？\n\nP(病|阳性)=P(阳性|病)P(病)/P(阳性)\n=0.99×0.01/(0.99×0.01+0.01×0.99)\n=0.0099/0.0198=0.5=50%\n\n结论：即使检测准确率99%，阳性时患病概率仅50%！这就是基础概率忽视(Base Rate Neglect)。','2022'),
+    Q(['期望','线性性质'],'choice','设E(X)=3,E(Y)=2，则E(2X-Y+1)=：',['5','6','7','3'],0,'期望的线性性质：E(aX+bY+c)=aE(X)+bE(Y)+c。E(2X-Y+1)=2×3-2+1=5。这是期望最基本也最常用的性质。','2018'),
+  ],
+  poli:[
+    // ── 马克思主义哲学 ──
+    Q(['唯物辩证法','对立统一'],'choice','唯物辩证法的实质和核心是：',['质量互变规律','对立统一规律','否定之否定规律','联系的观点'],1,'对立统一规律是唯物辩证法的实质和核心。因为它揭示了事物发展的源泉和动力（矛盾是根本动力），是理解其他规律和范畴的钥匙，也是认识世界和改造世界的根本方法。','2020'),
+    Q(['唯物辩证法','质量互变','否定之否定'],'multi','唯物辩证法三大规律包括：',['对立统一规律','质量互变规律','否定之否定规律','因果规律'],[0,1,2],'唯物辩证法三大基本规律：①对立统一规律（核心，揭示发展的动力）②质量互变规律（揭示发展的形式）③否定之否定规律（揭示发展的方向和道路）。因果规律属于唯物辩证法的范畴，不是基本规律。','2019'),
+    Q(['唯物辩证法','矛盾','普遍性特殊性'],'choice','矛盾普遍性和特殊性的关系是：',['普遍性包含特殊性','特殊性包含普遍性','普遍性与特殊性相互转化','普遍性是特殊性的总和'],2,'矛盾的普遍性和特殊性是共性和个性的关系，二者相互联结、相互转化。普遍性寓于特殊性之中，特殊性包含普遍性。普遍性与特殊性在一定条件下可以相互转化。','2021'),
+    Q(['唯物辩证法','否定之否定'],'choice','否定之否定规律揭示的事物发展的方向和道路是：',['直线前进','循环往复','螺旋式上升或波浪式前进','倒退'],2,'否定之否定规律揭示事物发展是螺旋式上升或波浪式前进。前进性体现在总趋势是向前的，曲折性体现在道路不是直线的。这与循环论（无进步）和直线论（无曲折）划清了界限。','2018'),
+    Q(['认识论','实践','认识'],'multi','关于实践与认识的关系，以下正确的有：',['实践是认识的基础','认识对实践有指导作用','认识具有反复性和无限性','真理是绝对的，不包含相对性'],[0,1,2],'A正确，实践决定认识（来源、动力、标准、目的）；B正确，正确认识指导实践成功；C正确，认识受主客观条件限制需反复，且实践不断发展使认识无限；D错误，真理是绝对性与相对性的统一，任何真理都包含相对性。','2022'),
+    Q(['认识论','真理','绝对性相对性'],'choice','真理的绝对性和相对性是：',['两种不同的真理','真理的两种属性','绝对真理和相对真理','真理的两个阶段'],1,'真理的绝对性和相对性是同一真理的两种属性，不是两种不同的真理。绝对性指真理的客观性和确定性，相对性指真理的有条件性和有限性。任何真理都是绝对性和相对性的统一。','2023'),
+    Q(['认识论','实践','检验标准'],'choice','检验真理的唯一标准是：',['逻辑证明','实践','多数人意见','权威理论'],1,'实践是检验真理的唯一标准，这是由真理的本性和实践的特点决定的。实践是主观见之于客观的活动，能把主观认识与客观现实联系起来加以比较。逻辑证明是重要补充但不是最终标准。','2017'),
+    // ── 马克思主义政治经济学 ──
+    Q(['商品','价值','劳动二重性'],'choice','商品的二因素是：',['使用价值和交换价值','使用价值和价值','具体劳动和抽象劳动','价值和剩余价值'],1,'商品二因素：使用价值（自然属性，满足需要）和价值（社会属性，凝结的抽象劳动）。注意：劳动二重性（具体劳动→使用价值，抽象劳动→价值）是商品二因素的根源。马克思称之为理解政治经济学的枢纽。','2020'),
+    Q(['商品','价值','社会必要劳动时间'],'choice','商品价值量由什么决定？',['个别劳动时间','社会必要劳动时间','使用价值大小','商品供求关系'],1,'商品价值量由社会必要劳动时间决定，而非个别劳动时间。社会必要劳动时间是在现有社会正常生产条件下，在社会平均劳动熟练程度和强度下制造某种使用价值所需的劳动时间。','2019'),
+    Q(['剩余价值','资本主义','剥削'],'choice','资本主义工资的本质是：',['劳动的价值或价格','劳动力的价值或价格','工人全部劳动的报酬','剩余价值的转化形式'],1,'资本主义工资的本质是劳动力的价值或价格，而非劳动的价值或价格。劳动不是商品，没有价值。工人出卖的是劳动力而非劳动，工资只是劳动力价值的货币表现，工人的剩余劳动创造了被资本家无偿占有的剩余价值。','2021'),
+    Q(['剩余价值','资本'],'multi','关于资本，以下正确的有：',['不变资本以生产资料形式存在','可变资本以劳动力形式存在','剩余价值只能由可变资本创造','资本有机构成是c/v'],[0,1,2,3],'A正确，c以生产资料形式存在，转移旧价值；B正确，v以劳动力形式存在，创造新价值；C正确，只有活劳动（v）才创造m，c只是转移价值；D正确，c/v是有机构成，反映资本技术构成和价值构成的变化。','2022'),
+    // ── 科学社会主义 ──
+    Q(['科学社会主义','共产主义'],'choice','科学社会主义的两大理论基石是：',['唯物史观和剩余价值学说','阶级斗争理论和国家学说','空想社会主义和辩证法','自然辩证法和历史辩证法'],0,'唯物史观和剩余价值学说是科学社会主义的两大理论基石。唯物史观揭示了人类社会发展的一般规律，剩余价值学说揭示了资本主义剥削的秘密，使社会主义从空想变为科学。','2018'),
+    // ── 毛泽东思想 ──
+    Q(['新民主主义革命','毛泽东思想','三大法宝'],'choice','新民主主义革命的三大法宝是：',['统一战线、武装斗争、党的建设','理论联系实际、密切联系群众、批评与自我批评','武装斗争、土地革命、根据地建设','实事求是、群众路线、独立自主'],0,'毛泽东在《<共产党人>发刊词》中总结三大法宝：统一战线、武装斗争、党的建设。B是党的三大作风；C是工农武装割据的内容；D是毛泽东思想活的灵魂。注意区分这些易混概念。','2020'),
+    Q(['毛泽东思想','活的灵魂'],'multi','毛泽东思想活的灵魂的三个基本方面是：',['实事求是','群众路线','独立自主','武装斗争'],[0,1,2],'毛泽东思想活的灵魂：①实事求是（根本出发点）②群众路线（根本工作路线）③独立自主（根本立场）。武装斗争是新民主主义革命时期的特点，不是活的灵魂。','2019'),
+    Q(['毛泽东思想','新民主主义革命'],'choice','新民主主义革命与旧民主主义革命的根本区别在于：',['革命对象不同','革命领导权不同','革命动力不同','革命结果不同'],1,'新民主主义革命与旧民主主义革命的根本区别是领导权不同：新民主主义革命由无产阶级（通过中国共产党）领导，旧民主主义革命由资产阶级领导。革命对象都是帝封官。','2023'),
+    // ── 邓小平理论 ──
+    Q(['邓小平理论','社会主义','市场经济'],'multi','邓小平理论的主要内容包括：',['社会主义初级阶段理论','社会主义市场经济理论','社会主义本质论','改革开放论'],[0,1,2,3],'A初级阶段理论是邓小平理论的基石；B提出计划和市场都是经济手段，社会主义可以搞市场经济；C社会主义本质是解放和发展生产力，消灭剥削，消除两极分化，最终达到共同富裕；D改革开放是决定当代中国命运的关键抉择。','2021'),
+    Q(['邓小平理论','社会主义本质'],'choice','邓小平对社会主义本质的概括是：',['解放生产力，发展生产力，消灭剥削，消除两极分化，最终达到共同富裕','公有制为主体，多种所有制经济共同发展','按劳分配为主体，多种分配方式并存','社会主义市场经济'],0,'1992年南方谈话中邓小平概括社会主义本质：解放生产力，发展生产力，消灭剥削，消除两极分化，最终达到共同富裕。这是从生产力和生产关系两个层面揭示社会主义本质，突破了单纯从生产关系认识的局限。','2017'),
+    // ── 习近平新时代中国特色社会主义思想 ──
+    Q(['新发展理念','习近平','主要矛盾'],'choice','新发展理念中，解决发展动力问题的是：',['协调','绿色','创新','开放'],2,'创新解决发展动力问题，协调解决发展不平衡问题，绿色解决人与自然和谐问题，开放解决内外联动问题，共享解决社会公平正义问题。创新是引领发展的第一动力。','2022'),
+    Q(['主要矛盾','新时代'],'essay','请阐述新时代我国社会主要矛盾的变化及其意义。','主要矛盾的变化：\n\n之前：人民日益增长的物质文化需要同落后的社会生产之间的矛盾。\n\n新时代：人民日益增长的美好生活需要和不平衡不充分的发展之间的矛盾。\n\n变化的意义：\n1. 反映了社会发展的阶段性特征，说明社会生产力总体提高\n2. "美好生活需要"范围更广，包括民主、法治、公平、正义、安全、环境等\n3. "不平衡不充分"代替"落后"，说明问题从"有没有"转向"好不好"\n4. 这一判断是制定大政方针、长远战略的重要依据','2020'),
+    Q(['主要矛盾','新时代'],'choice','新时代我国社会主要矛盾中"不平衡不充分"主要体现在：',['城乡发展不平衡','区域发展不平衡','收入分配不平衡','以上都是'],3,'新时代发展不平衡不充分问题主要表现在：城乡区域发展不平衡、收入分配差距较大、民生领域还有不少短板、生态环境保护任重道远等。"以上都是"最全面地反映了不平衡不充分的表现。','2023'),
+    Q(['新发展理念','习近平'],'multi','习近平新时代中国特色社会主义思想的核心要义包括：',['坚持和发展中国特色社会主义','实现中华民族伟大复兴','"八个明确"','"十四个坚持"'],[0,1,2,3],'A是核心要义的主题；B是中国梦的核心目标；C"八个明确"是理论层面的核心内容；D"十四个坚持"是实践层面的基本方略。四者共同构成习近平新时代中国特色社会主义思想的完整体系。','2019'),
+    // ── 中国近现代史纲要 ──
+    Q(['辛亥革命','近代史'],'choice','关于辛亥革命，以下说法正确的是：',['辛亥革命推翻了封建制度','辛亥革命推翻了封建君主专制制度','辛亥革命取得了完全成功','辛亥革命没有历史意义'],1,'辛亥革命的最大功绩是推翻了封建君主专制制度（帝制），建立民国。但它没有推翻封建制度（经济基础未变），也没有完成反帝反封建的任务，是一次不彻底的资产阶级民主革命。注意区分"封建君主专制制度"和"封建制度"。','2021'),
+    Q(['五四运动','近代史'],'choice','五四运动标志着中国新民主主义革命的开端，其主要原因是：',['学生成为运动主力','工人阶级登上政治舞台','运动规模空前','提出了反帝口号'],1,'五四运动是新民主主义革命开端的关键在于：中国工人阶级开始作为独立的政治力量登上历史舞台，使运动超出学生范围成为全国性群众运动。运动的领导力量和主力发生了质变，这是新旧民主革命的根本分界。','2022'),
+    Q(['辛亥革命','近代史','遵义会议'],'choice','中国共产党历史上生死攸关的转折点是：',['中共一大','南昌起义','遵义会议','延安整风'],2,'1935年遵义会议是党的历史上生死攸关的转折点。它事实上确立了以毛泽东为核心的党中央正确领导，挽救了党、挽救了红军、挽救了中国革命，是党从幼年走向成熟的标志。','2018'),
+    // ── 思想道德与法治 ──
+    Q(['核心价值观','思想道德','法治'],'multi','社会主义核心价值观中，属于社会层面价值取向的有：',['自由','平等','公正','法治'],[0,1,2,3],'社会主义核心价值观三个层面：\n国家层面：富强、民主、文明、和谐\n社会层面：自由、平等、公正、法治\n公民层面：爱国、敬业、诚信、友善\n四个选项都属于社会层面的价值取向。','2020'),
+    Q(['核心价值观','思想道德'],'choice','社会主义核心价值观中，属于公民层面价值准则的是：',['自由、平等、公正、法治','富强、民主、文明、和谐','爱国、敬业、诚信、友善','创新、协调、绿色、开放'],2,'公民层面四个价值准则：爱国（对祖国的忠诚）、敬业（对职业的尊重）、诚信（做人的基本底线）、友善（人际交往的准则）。A是社会层面；B是国家层面；D是新发展理念。','2023'),
+    Q(['思想道德','法治','德治'],'essay','请阐述法治与德治的关系，以及如何在实践中坚持法治与德治相结合。','法治与德治的关系：\n\n1. 法治是治国理政的基本方式，德治是治国理政的重要方式\n2. 法治和德治相辅相成、相互促进\n3. 法治是道德的保障，道德是法治的支撑\n4. 法治解决不敢的问题，德治解决不愿的问题\n\n实践中的结合：\n1. 推动法治和德治相互促进——法律要体现道德要求，道德要支撑法治精神\n2. 发挥法治对道德的保障作用——用法律手段解决道德领域的突出问题\n3. 发挥道德对法治的滋养作用——道德教化有助于减少违法行为\n4. 法安天下，德润人心——法律制度规范行为，道德教化净化心灵','2021'),
+    Q(['思想道德','人生价值'],'choice','人生价值的根本尺度是：',['个人的社会地位','个人对社会的贡献','个人获得的财富','个人享受的生活'],1,'人生价值的评价标准主要看一个人对社会和他人的贡献。人生的自我价值和社会价值是统一的，社会价值是根本尺度。人生的真正价值在于对社会的贡献，这是马克思主义人生观的基本观点。','2017'),
+    // ── 综合题 ──
+    Q(['唯物辩证法','认识论','综合'],'multi','以下属于马克思主义哲学基本特征的有：',['实践性','科学性','革命性','阶级性'],[0,1,2,3],'马克思主义哲学的基本特征：①实践性（最显著特征，以实践为基础）②科学性（揭示了自然社会思维的客观规律）③革命性（批判精神和创新精神）④阶级性（无产阶级的世界观方法论）。四个特征相互联系、有机统一。','2022'),
+    Q(['邓小平理论','改革开放','综合'],'essay','请论述改革开放的历史意义和基本经验。','改革开放的历史意义：\n\n1. 极大解放和发展了社会生产力，推动了中国经济社会的历史性巨变\n2. 开辟了中国特色社会主义道路，形成了中国特色社会主义理论体系\n3. 使中国大踏步赶上了时代，实现了从相对落后到总体小康的历史性跨越\n4. 为世界和平与发展作出了重要贡献\n\n基本经验：\n1. 坚持党的领导，贯彻党的基本路线不动摇\n2. 坚持解放思想、实事求是、与时俱进\n3. 坚持正确处理改革、发展、稳定的关系\n4. 坚持以人为本，尊重人民主体地位\n5. 坚持独立自主与对外开放相结合\n6. 坚持以经济建设为中心，全面推进各项改革','2023'),
+  ]
+};
+
+// ===== 已出题记录（防重复，按科目+知识点类型分区） =====
+const usedQIds={stat:new Set(),math:new Set(),poli:new Set()};
+function resetUsedQ(s){usedQIds[s]=new Set();showToast('已重置出题记录，可重新从全库抽题','info')}
+function getUsedCount(s){return usedQIds[s].size}
+function getTotalCount(s){return(QBANK[s]||[]).length}
+
+// ==================== NAVIGATION ====================
+function openSection(s){
+  document.getElementById('homePage').style.display='none';
+  document.getElementById(s+'Page').classList.add('active');
+  renderAll(s);
+}
+function goHome(){
+  document.querySelectorAll('.section-page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('homePage').style.display='flex';
+  updateHomeCounts();
+}
+function switchTab(btn,s,tab){
+  const pg=document.getElementById(s+'Page');
+  pg.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  pg.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+  document.getElementById(s+'-'+tab).classList.add('active');
+  if(tab==='fw')renderFramework(s);
+  if(tab==='qg')renderQG(s);
+  if(tab==='ex')renderEX(s);
+}
+function updateHomeCounts(){
+  ['stat','math','poli'].forEach(s=>{
+    document.getElementById(s+'Count').textContent=getKP(s).length;
+    document.getElementById(s+'ExCount').textContent=getEX(s).length;
+  });
+}
+
+// ==================== TOAST ====================
+function showToast(msg,type='success'){
+  const t=document.createElement('div');t.className='toast '+type;t.textContent=msg;
+  document.body.appendChild(t);setTimeout(()=>t.remove(),2500);
+}
+
+// ==================== RENDER KNOWLEDGE POINTS ====================
+function renderKP(s){
+  const kps=getKP(s),c=SUBJECTS[s].color;
+  let h=`<div class="kp-container"><div class="kp-sidebar">
+    <h3>📝 知识点列表 <span class="kp-count">${kps.length}个</span></h3>
+    <div class="kp-add-form">
+      <textarea class="kp-input" id="kpInput_${s}" placeholder="输入知识点内容，如：极限的ε-δ定义：∀ε>0,∃δ>0...&#10;支持使用冒号、逗号分隔主知识点和子知识点"></textarea>
+      <button class="kp-add-btn" style="background:${c}" onclick="handleAddKP('${s}')">＋ 添加知识点</button>
+    </div><div class="kp-list">`;
+  if(!kps.length) h+=`<div style="text-align:center;color:var(--text-light);padding:30px 10px;font-size:14px;line-height:1.8">暂无知识点<br>请在上方输入框添加</div>`;
+  kps.forEach(k=>{
+    h+=`<div class="kp-item" id="kpItem_${k.id}">
+      <input type="checkbox" class="kp-checkbox" data-id="${k.id}" data-text="${escAttr(k.text)}">
+      <div class="kp-text">${escHtml(k.text)}</div>
+      <div class="kp-actions">
+        <button class="kp-edit-btn" onclick="editKP('${s}',${k.id})" title="编辑">✏️</button>
+        <button class="kp-del-btn" onclick="handleDelKP('${s}',${k.id})" title="删除">✕</button>
+      </div></div>`;
+  });
+  h+=`</div></div><div class="kp-main"><div class="kp-detail-card"><h3>📋 知识点详情</h3><div id="kpDetail_${s}">`;
+  if(!kps.length){
+    h+=`<div style="text-align:center;padding:50px 20px;color:var(--text-light)"><div style="font-size:48px;margin-bottom:12px;opacity:.4">📝</div>添加知识点后，可在此查看和管理<br><span style="font-size:13px">知识点会自动用于生成框架图和练习题</span></div>`;
+  } else {
+    kps.forEach((k,i)=>{
+      h+=`<div style="padding:14px;border-bottom:1px solid var(--border);animation:fadeUp .3s ease ${i*0.05}s both">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <span style="font-size:12px;color:var(--text-light)">📅 ${k.created}</span>
+          <span style="font-size:11px;padding:2px 8px;border-radius:4px;background:${c}18;color:${c}">#${i+1}</span>
+        </div>
+        <div style="font-size:14px;line-height:1.7">${escHtml(k.text)}</div>
+      </div>`;
+    });
+  }
+  h+=`</div></div></div></div>`;
+  document.getElementById(s+'-kp').innerHTML=h;
+}
+function handleAddKP(s){
+  const inp=document.getElementById('kpInput_'+s);
+  if(!inp.value.trim()){showToast('请输入知识点内容','error');return}
+  addKP(s,inp.value);inp.value='';renderKP(s);showToast('知识点添加成功！');
+}
+function handleDelKP(s,id){delKP(s,id);renderKP(s);showToast('知识点已删除','info')}
+function editKP(s,id){
+  const k=getKP(s).find(x=>x.id===id);if(!k)return;
+  const ov=document.createElement('div');ov.className='modal-overlay';
+  ov.innerHTML=`<div class="modal-box"><h3>✏️ 编辑知识点</h3>
+    <textarea id="editKpText">${escHtml(k.text)}</textarea>
+    <div class="modal-btns"><button class="modal-btn" onclick="this.closest('.modal-overlay').remove()">取消</button>
+    <button class="modal-btn primary" onclick="saveEditKP('${s}',${id})">保存</button></div></div>`;
+  document.body.appendChild(ov);
+  ov.addEventListener('click',e=>{if(e.target===ov)ov.remove()});
+}
+function saveEditKP(s,id){
+  const t=document.getElementById('editKpText').value.trim();
+  if(!t){showToast('内容不能为空','error');return}
+  updateKP(s,id,t);document.querySelector('.modal-overlay').remove();
+  renderKP(s);showToast('知识点已更新！');
+}
+
+// ==================== RENDER QUESTION GENERATOR ====================
+function renderQG(s){
+  const kps=getKP(s),c=SUBJECTS[s].color;
+  let h=`<div class="kp-container"><div class="kp-sidebar">
+    <h3>☑️ 选择知识点</h3>
+    <div style="margin-bottom:10px;font-size:12px;color:var(--text-light)">勾选要出题的知识点（可多选）</div>
+    <div class="kp-list">`;
+  if(!kps.length) h+=`<div style="padding:30px 10px;text-align:center;color:var(--text-light);font-size:14px">暂无知识点，请先添加</div>`;
+  kps.forEach(k=>{
+    const short=k.text.length>50?k.text.substring(0,50)+'...':k.text;
+    h+=`<div class="kp-item" style="padding:8px 10px">
+      <input type="checkbox" class="kp-checkbox qg-check" data-id="${k.id}" data-text="${escAttr(k.text)}">
+      <div class="kp-text" style="font-size:12px">${escHtml(short)}</div>
+    </div>`;
+  });
+  h+=`</div>
+    <button style="width:100%;padding:8px;margin-top:10px;border:2px solid ${c};border-radius:10px;background:transparent;color:${c};cursor:pointer;font-size:13px;font-weight:500;transition:all .2s" onmouseover="this.style.background='${c}';this.style.color='#fff'" onmouseout="this.style.background='transparent';this.style.color='${c}'" onclick="toggleAllQG('${s}')">全选 / 取消全选</button>
+  </div><div class="kp-main"><div class="kp-detail-card">
+    <h3>🎯 历年真题练习</h3>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap">
+      <span style="font-size:13px;color:var(--text-light);background:#f0f2f5;padding:4px 12px;border-radius:8px">📚 题库 <b style="color:var(--text)">${getTotalCount(s)}</b> 题</span>
+      <span style="font-size:13px;color:var(--text-light);background:#fff3e0;padding:4px 12px;border-radius:8px">✅ 已做 <b style="color:${c}">${getUsedCount(s)}</b> 题</span>
+      <span style="font-size:13px;color:var(--text-light);background:#e8f5e9;padding:4px 12px;border-radius:8px">🆕 剩余 <b style="color:#27ae60">${getTotalCount(s)-getUsedCount(s)}</b> 题</span>
+      <button style="font-size:12px;padding:4px 12px;border:1px solid var(--border);border-radius:8px;background:var(--card);cursor:pointer;color:var(--text-light);transition:all .2s" onmouseover="this.style.borderColor='#e74c3c';this.style.color='#e74c3c'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-light)'" onclick="resetUsedQ('${s}');renderQG('${s}')">🔄 重置记录</button>
+    </div>
+    <div class="q-gen-controls">
+      <button class="q-type-btn active" data-type="choice" onclick="selectQType(this)">单选题</button>
+      <button class="q-type-btn" data-type="multi" onclick="selectQType(this)">多选题</button>
+      <button class="q-type-btn" data-type="essay" onclick="selectQType(this)">问答题</button>
+      <button class="q-type-btn" data-type="random" onclick="selectQType(this)">随机</button>
+      <select class="q-num-select" id="qNum_${s}"><option value="1">1题</option><option value="3" selected>3题</option><option value="5">5题</option><option value="10">10题</option></select>
+      <button class="q-gen-btn" style="background:${c}" onclick="generateQ('${s}')">🎯 生成题目</button>
+    </div>
+    <div id="qResult_${s}">
+      <div class="no-selection-msg"><div class="big-icon">🎯</div><div>选择知识点后点击"生成题目"<br><span style="font-size:13px">题目从历年真题中抽取，不会重复出题</span></div></div>
+    </div>
+  </div></div></div>`;
+  document.getElementById(s+'-qg').innerHTML=h;
+}
+function toggleAllQG(s){
+  const chks=document.querySelectorAll(`#${s}-qg .qg-check`);
+  const all=[...chks].every(c=>c.checked);
+  chks.forEach(c=>c.checked=!all);
+}
+function selectQType(btn){
+  btn.closest('.q-gen-controls').querySelectorAll('.q-type-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function generateQ(s){
+  const container=document.getElementById(s+'-qg');
+  const checks=container.querySelectorAll('.qg-check:checked');
+  const typeBtn=container.querySelector('.q-type-btn.active');
+  const qType=typeBtn?typeBtn.dataset.type:'random';
+  const numSel=document.getElementById('qNum_'+s);
+  const num=numSel?parseInt(numSel.value):3;
+  if(!checks.length){showToast('请先选择至少一个知识点','error');return}
+  const selTexts=[...checks].map(c=>c.dataset.text);
+  const bank=QBANK[s]||[];
+  // 1. 按知识点匹配
+  let matched=[];
+  selTexts.forEach(txt=>{
+    bank.forEach(q=>{
+      if(q.kp.some(kp=>txt.includes(kp))&&!matched.find(m=>m.id===q.id))matched.push(q);
+    });
+  });
+  // 2. 排除已出过的题（防重复）
+  let available=matched.filter(q=>!usedQIds[s].has(q.id));
+  // 3. 按题型筛选
+  let filtered=qType==='random'?available:available.filter(q=>q.type===qType);
+  // 4. 若不足，从全题库补充
+  if(filtered.length<num){
+    let extra=bank.filter(q=>!usedQIds[s].has(q.id)&&!filtered.find(f=>f.id===q.id));
+    if(qType!=='random')extra=extra.filter(q=>q.type===qType);
+    filtered=filtered.concat(shuffle(extra));
+  }
+  // 5. 若仍无题，生成模板题
+  if(!filtered.length)filtered=generateTemplateQ(s,selTexts,qType);
+  // 6. 随机排序取所需数量
+  filtered=shuffle(filtered).slice(0,num);
+  // 7. 记录已用题ID（防下次重复）
+  filtered.forEach(q=>{if(q.id)usedQIds[s].add(q.id)});
+  // Render
+  const c=SUBJECTS[s].color;
+  let h='';
+  filtered.forEach((q,i)=>{
+    const tl=q.type==='choice'?'单选题':q.type==='multi'?'多选题':'问答题';
+    const tc=q.type==='choice'?'choice':q.type==='multi'?'multi':'essay';
+    const yearTag=q.year?`<span style="font-size:12px;background:#fff3e0;color:#e67e22;padding:2px 8px;border-radius:6px;margin-left:8px">📚 ${q.year}年真题</span>`:'';
+    h+=`<div class="question-card" style="border-left-color:${c};animation:fadeUp .3s ease ${i*0.08}s both">
+      <div style="display:flex;align-items:center;gap:6px"><span class="q-type-tag ${tc}">${tl}</span>${yearTag}</div>
+      <div class="q-text">${i+1}. ${escHtml(q.q)}</div>`;
+    if(q.type==='choice'){
+      h+=`<div class="q-options">`;
+      q.opts.forEach((o,oi)=>{
+        const L=String.fromCharCode(65+oi);
+        h+=`<div class="q-option" id="qopt_${i}_${oi}" onclick="selectOption(${i},${oi},${q.ans})">
+          <span class="q-option-label">${L}.</span><span class="q-option-text">${escHtml(o)}</span></div>`;
+      });
+      h+=`</div>`;
+    } else if(q.type==='multi'){
+      h+=`<div class="q-options">`;
+      q.opts.forEach((o,oi)=>{
+        const L=String.fromCharCode(65+oi);
+        h+=`<div class="q-option" id="qopt_${i}_${oi}" onclick="toggleMultiOption(${i},${oi})">
+          <span class="q-option-label" id="qlabel_${i}_${oi}">☐ ${L}.</span><span class="q-option-text">${escHtml(o)}</span></div>`;
+      });
+      h+=`</div>`;
+      h+=`<button class="q-show-answer" onclick="checkMultiAnswer(${i},${JSON.stringify(q.ans).replace(/"/g,'&quot;')})">✅ 提交答案</button>`;
+    } else {
+      h+=`<textarea class="q-essay-area" placeholder="在此写下你的答案..."></textarea>`;
+    }
+    const ansStr=q.ans instanceof Array?q.ans.map(a=>String.fromCharCode(65+a)).join(','):(typeof q.ans==='number'?String.fromCharCode(65+q.ans):'');
+    h+=`<button class="q-show-answer" onclick="showAnswer(this)">📖 查看解析</button>
+      <div class="q-answer"><h4>✅ 答案解析</h4><p>${ansStr?'<b>正确答案：'+ansStr+'</b><br><br>':''}${escHtml(q.exp)}</p></div>
+      <div class="q-related-kp">📌 ${q.kp.map(k=>`<span>${escHtml(k)}</span>`).join('')}</div>
+    </div>`;
+  });
+  document.getElementById('qResult_'+s).innerHTML=h||`<div class="no-selection-msg"><div class="big-icon">😕</div><div>未找到匹配的题目，请添加更多知识点<br><span style="font-size:13px;color:var(--text-light)">剩余未做题数：${getTotalCount(s)-getUsedCount(s)} / ${getTotalCount(s)}</span></div></div>`;
+  if(filtered.length)showToast(`已生成 ${filtered.length} 道历年真题！剩余 ${getTotalCount(s)-getUsedCount(s)} 题未做`);
+}
+
+function updateQCountDisplay(s){
+  const pg=document.getElementById(s+'Page');
+  if(!pg)return;
+}
+
+function generateTemplateQ(s,texts,qType){
+  const qs=[];
+  texts.forEach(txt=>{
+    const short=txt.substring(0,30);
+    if(qType==='essay'||qType==='random'){
+      qs.push({kp:[short.substring(0,8)],type:'essay',q:`请详细阐述"${short}"的核心概念与关键要点，并结合考研要求说明常考角度。`,ans:`关于"${short}"的解析：\n\n一、核心概念\n该知识点的核心定义与基本内涵是考研的重要考点。\n\n二、关键要点\n1. 基本定义与适用条件\n2. 重要性质与推论\n3. 常见应用与计算方法\n4. 易混淆点与注意事项\n\n三、考研常考角度\n1. 概念辨析与判断题\n2. 计算与应用题\n3. 综合分析与论述\n\n建议结合真题反复练习，注意与相关知识的联系与区别。`});
+    }
+    if(qType==='choice'||qType==='random'){
+      qs.push({kp:[short.substring(0,8)],type:'choice',q:`关于"${short}"，以下说法正确的是：`,opts:['该知识点的核心定义是准确的','该知识点与其他概念完全无关','该知识点无需理解即可应用','以上说法都不正确'],ans:0,exp:`选项A最符合该知识点的基本内涵。B错误，知识点之间普遍存在联系；C错误，理解是应用的前提和基础；D过于绝对化。该知识点需重点掌握核心概念和常见应用场景。`});
+    }
+    if(qType==='multi'||qType==='random'){
+      qs.push({kp:[short.substring(0,8)],type:'multi',q:`关于"${short}"，以下说法正确的有：`,opts:['需要准确理解基本概念与定义','需要注意易混淆的相似概念','与相关知识点存在联系','只需死记硬背即可'],ans:[0,1,2],exp:`A正确，理解基本概念是掌握知识的前提；B正确，考研常考概念辨析；C正确，知识体系是互联互通的；D错误，考研强调理解和灵活应用，死记硬背无法应对变形题。`});
+    }
+  });
+  return qs;
+}
+
+function selectOption(qi,oi,ans){
+  for(let j=0;j<10;j++){
+    const el=document.getElementById(`qopt_${qi}_${j}`);
+    if(!el)break;
+    el.classList.remove('correct','wrong');
+    if(j===ans)el.classList.add('correct');
+    else if(j===oi&&oi!==ans)el.classList.add('wrong');
+  }
+}
+const multiSel={};
+function toggleMultiOption(qi,oi){
+  const k=`${qi}_${oi}`;multiSel[k]=!multiSel[k];
+  const opt=document.getElementById(`qopt_${qi}_${oi}`);
+  const lbl=document.getElementById(`qlabel_${qi}_${oi}`);
+  if(multiSel[k]){opt.style.borderColor='var(--primary)';opt.style.background='rgba(59,89,152,.03)';lbl.textContent='☑ '+String.fromCharCode(65+oi)+'.'}
+  else{opt.style.borderColor='var(--border)';opt.style.background='';lbl.textContent='☐ '+String.fromCharCode(65+oi)+'.'}
+}
+function checkMultiAnswer(qi,correctArr){
+  for(let j=0;j<10;j++){
+    const opt=document.getElementById(`qopt_${qi}_${j}`);
+    if(!opt)break;
+    const k=`${qi}_${j}`;
+    const sel=!!multiSel[k];
+    const isCor=correctArr.includes(j);
+    opt.classList.remove('correct','wrong');
+    if(isCor)opt.classList.add('correct');
+    else if(sel&&!isCor)opt.classList.add('wrong');
+  }
+}
+function showAnswer(btn){
+  const ans=btn.nextElementSibling;
+  ans.classList.toggle('show');
+  btn.textContent=ans.classList.contains('show')?'📖 隐藏解析':'📖 查看解析';
+}
+
+// ==================== RENDER FRAMEWORK DIAGRAM ====================
+function renderFramework(s){
+  const kps=getKP(s),c=SUBJECTS[s].color;
+  const el=document.getElementById(s+'-fw');
+  if(!kps.length){
+    el.innerHTML=`<div class="empty-framework"><div class="big-icon">🗺️</div><div style="font-size:16px;margin-bottom:8px">添加知识点后自动生成框架图</div><div style="font-size:13px">框架图会根据知识点的层级结构自动组织</div></div>`;
+    return;
+  }
+  // Build tree from KP text (split by ：then by ，、；)
+  const tree={};
+  kps.forEach(k=>{
+    const colonIdx=k.text.indexOf('：')>-1?k.text.indexOf('：'):k.text.indexOf(':');
+    let main,subs;
+    if(colonIdx>-1){
+      main=k.text.substring(0,colonIdx).trim();
+      const rest=k.text.substring(colonIdx+1).trim();
+      subs=rest.split(/[，,；;、]/).map(s=>s.trim()).filter(s=>s.length>0);
+    } else {
+      main=k.text.length>20?k.text.substring(0,20):k.text;
+      subs=[];
+    }
+    if(!tree[main])tree[main]=[];
+    subs.forEach(sub=>{if(!tree[main].includes(sub))tree[main].push(sub)});
+  });
+  // Layout calculation
+  const mains=Object.keys(tree);
+  const nodeW=140,nodeH=36,subNodeW=0,subNodeH=28,gapX=40,gapY=54;
+  const svgW=Math.max(800,mains.length*(nodeW+gapX)+gapX);
+  // Calculate height needed
+  let maxSubs=0;mains.forEach(m=>{if(tree[m].length>maxSubs)maxSubs=tree[m].length});
+  const svgH=Math.max(400,120+maxSubs*subNodeH+gapY*2+60);
+  // Generate SVG
+  let svg=`<svg viewBox="0 0 ${svgW} ${svgH}" xmlns="http://www.w3.org/2000/svg" style="min-width:${svgW}px">`;
+  // Background
+  svg+=`<defs>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="120%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.08"/></filter>
+    <linearGradient id="centerGrad_${s}" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="${c}"/><stop offset="100%" stop-color="${lighten(c,20)}"/></linearGradient>
+  </defs>`;
+  svg+=`<rect width="${svgW}" height="${svgH}" fill="#fafbfc" rx="8"/>`;
+  // Center node
+  const cx=svgW/2,cy=45;
+  svg+=`<rect x="${cx-75}" y="22" width="150" height="42" rx="21" fill="url(#centerGrad_${s})" filter="url(#shadow)"/>`;
+  svg+=`<text x="${cx}" y="49" text-anchor="middle" fill="#fff" font-size="16" font-weight="bold" font-family="inherit">${SUBJECTS[s].name}</text>`;
+  // Branch nodes
+  const branchStartX=gapX+nodeW/2;
+  const branchSpacing=(svgW-2*gapX)/(mains.length);
+  mains.forEach((m,i)=>{
+    const bx=branchStartX+i*branchSpacing;
+    const by=130;
+    // Line from center to branch
+    svg+=`<path d="M${cx},${cy+21} C${cx},${cy+21+30} ${bx},${by-30} ${bx},${by-18}" stroke="${c}" stroke-width="2" fill="none" opacity="0.35"/>`;
+    // Branch node
+    const tw=Math.min(m.length*15+30,nodeW+20);
+    svg+=`<rect x="${bx-tw/2}" y="${by-18}" width="${tw}" height="36" rx="18" fill="${c}12" stroke="${c}" stroke-width="1.5" filter="url(#shadow)"/>`;
+    svg+=`<text x="${bx}" y="${by+5}" text-anchor="middle" fill="${c}" font-size="13" font-weight="600" font-family="inherit">${escSvg(truncate(m,10))}</text>`;
+    // Sub nodes
+    const subs=tree[m];
+    subs.forEach((sub,si)=>{
+      const sy=by+36+12+si*gapY;
+      if(sy<svgH-20){
+        // Line from branch to sub
+        svg+=`<line x1="${bx}" y1="${by+18}" x2="${bx}" y2="${sy-8}" stroke="${c}" stroke-width="1.2" opacity="0.25"/>`;
+        svg+=`<circle cx="${bx}" cy="${sy-8}" r="3.5" fill="${c}" opacity="0.5"/>`;
+        svg+=`<text x="${bx+10}" y="${sy-4}" fill="#444" font-size="12" font-family="inherit">${escSvg(truncate(sub,28))}</text>`;
+      }
+    });
+  });
+  svg+=`</svg>`;
+  el.innerHTML=`<div class="framework-container">
+    <div class="framework-toolbar">
+      <span style="font-weight:600;font-size:15px;display:flex;align-items:center;gap:6px">🗺️ 知识框架图</span>
+      <span style="font-size:12px;color:var(--text-light)">自动根据知识点层级结构生成</span>
+      <div style="flex:1"></div>
+      <button onclick="renderFramework('${s}')">🔄 刷新</button>
+    </div>
+    <div class="framework-svg-wrap">${svg}</div>
+  </div>`;
+}
+
+// ==================== RENDER EXAMPLES ====================
+function renderEX(s){
+  // 渲染时重置该科目的多选状态
+  _kpMSState[s]=[];
+  const kps=getKP(s),exs=getEX(s),c=SUBJECTS[s].color;
+  let h=`<div class="example-form"><h3>📝 添加例题与解析</h3>
+    <div style="margin-bottom:6px;font-size:13px;color:var(--text-light)">关联知识点（可搜索、多选）：</div>
+    <div class="kp-multiselect" id="kpMS_${s}">
+      <div class="kp-ms-selected" id="kpMSSel_${s}"></div>
+      <div class="kp-ms-input-wrap" onclick="document.getElementById('kpMSDrop_${s}').classList.add('open');document.getElementById('kpMSSearch_${s}').focus()">
+        <span style="font-size:16px;color:var(--text-light)">🔍</span>
+        <input class="kp-ms-search" id="kpMSSearch_${s}" placeholder="${kps.length?'搜索知识点…':'暂无知识点，请先添加'}" oninput="filterKPMS('${s}')" onfocus="document.getElementById('kpMSDrop_${s}').classList.add('open')" ${kps.length?'':'disabled'}>
+      </div>
+      <div class="kp-ms-dropdown" id="kpMSDrop_${s}">
+        <div id="kpMSOpts_${s}">`;
+  if(!kps.length) h+=`<div class="kp-ms-empty">暂无知识点</div>`;
+  kps.forEach(k=>{
+    const short=k.text.length>20?k.text.substring(0,20)+'…':k.text;
+    h+=`<div class="kp-ms-option" data-id="${k.id}" data-text="${escAttr(k.text)}" onclick="toggleKPMSChip('${s}',${k.id},'${escAttr(short)}','${c}')">
+      <span class="opt-check" id="optCheck_${s}_${k.id}"></span>${escHtml(short)}</div>`;
+  });
+  h+=`</div></div>
+      <div class="kp-ms-count" id="kpMSCount_${s}">已选 0 个知识点</div>
+    </div>
+    <div style="margin-bottom:6px;font-size:13px;color:var(--text-light)">例题内容：</div>
+    <textarea class="example-textarea" id="exText_${s}" placeholder="输入例题，如：&#10;求 lim(x→0)(e^x - 1)/x&#10;设X~N(0,1)，求P(|X|<1.96)"></textarea>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin:10px 0 6px">
+      <span style="font-size:13px;color:var(--text-light)">答案解析：</span>
+      <button class="auto-gen-btn" id="autoGenBtn_${s}" onclick="autoGenAnalysis('${s}')">🤖 自动生成解析</button>
+    </div>
+    <textarea class="example-textarea" id="exAnalysis_${s}" placeholder="输入详细解析过程，如：&#10;解：使用洛必达法则...&#10;原式 = lim cos(x)/1 = 1&#10;&#10;或点击上方「自动生成解析」按钮"></textarea>
+    <button class="kp-add-btn" style="background:${c};margin-top:12px" onclick="handleAddEX('${s}')">＋ 保存例题</button>
+  </div>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+    <span style="font-weight:600;font-size:16px">📚 已保存例题</span>
+    <span style="font-size:13px;color:var(--text-light)">共 ${exs.length} 个</span>
+  </div>
+  <div class="example-list">`;
+  if(!exs.length) h+=`<div style="text-align:center;padding:50px;color:var(--text-light);font-size:15px"><div style="font-size:48px;margin-bottom:12px;opacity:.4">✏️</div>暂无例题，请在上方添加</div>`;
+  exs.slice().reverse().forEach((e,idx)=>{
+    const relKps=kps.filter(k=>e.kpIds&&e.kpIds.includes(k.id));
+    const uniqId=`ex_${s}_${e.id}`;
+    h+=`<div class="example-item">
+      <div class="ex-header">
+        <div style="display:flex;gap:6px;flex-wrap:wrap">${relKps.length?relKps.map(k=>`<span class="ex-kp" style="background:${c}">${escHtml(truncate(k.text,15))}</span>`).join(''):'<span style="font-size:12px;color:var(--text-light)">未关联知识点</span>'}</div>
+        <div style="display:flex;align-items:center;gap:10px"><span class="ex-time">${e.created}</span><button onclick="handleDelEX('${s}',${e.id})" style="border:none;background:none;color:#e74c3c;cursor:pointer;font-size:16px" title="删除">✕</button></div>
+      </div>
+      <div class="ex-content">${escHtml(e.text)}</div>`;
+    if(e.analysis){
+      h+=`<button class="q-show-answer" onclick="toggleExAnalysis('${uniqId}')">📖 查看解析</button>
+        <div class="ex-analysis" id="${uniqId}" style="display:none"><h4>📝 解析</h4><p>${escHtml(e.analysis)}</p></div>`;
+    } else {
+      h+=`<div style="font-size:12px;color:var(--text-light);margin-top:8px;padding:8px 12px;background:#f8f9fb;border-radius:8px">暂无解析</div>`;
+    }
+    h+=`</div>`;
+  });
+  h+=`</div>`;
+  document.getElementById(s+'-ex').innerHTML=h;
+}
+function toggleExAnalysis(id){
+  const el=document.getElementById(id);
+  const btn=el?el.previousElementSibling:null;
+  if(!el)return;
+  const show=el.style.display==='none';
+  el.style.display=show?'block':'none';
+  if(btn)btn.textContent=show?'📖 隐藏解析':'📖 查看解析';
+}
+function handleAddEX(s){
+  const t=document.getElementById('exText_'+s).value.trim();
+  const a=document.getElementById('exAnalysis_'+s).value.trim();
+  if(!t){showToast('请输入例题内容','error');return}
+  const ids=getSelectedKPMSIds(s);
+  addEX(s,ids,t,a);
+  // 清空表单
+  document.getElementById('exText_'+s).value='';
+  document.getElementById('exAnalysis_'+s).value='';
+  renderEX(s);showToast('例题保存成功！');
+}
+function handleDelEX(s,id){delEX(s,id);renderEX(s);showToast('例题已删除','info')}
+
+// ==================== KP MULTI-SELECT (搜索+多选知识点) ====================
+// 存储每个科目当前已选的 kpId 列表
+const _kpMSState={stat:[],math:[],poli:[]};
+
+function getSelectedKPMSIds(s){return _kpMSState[s]||[]}
+
+function filterKPMS(s){
+  const q=document.getElementById('kpMSSearch_'+s).value.trim().toLowerCase();
+  const kps=getKP(s);
+  const optsEl=document.getElementById('kpMSOpts_'+s);
+  if(!optsEl)return;
+  const c=SUBJECTS[s].color;
+  let h='';
+  const filtered=kps.filter(k=>!q||k.text.toLowerCase().includes(q));
+  if(!filtered.length){h=`<div class="kp-ms-empty">没有匹配的知识点</div>`;}
+  else{
+    filtered.forEach(k=>{
+      const short=k.text.length>22?k.text.substring(0,22)+'…':k.text;
+      const sel=(_kpMSState[s]||[]).includes(k.id);
+      h+=`<div class="kp-ms-option${sel?' selected':''}" data-id="${k.id}" data-text="${escAttr(k.text)}" onclick="toggleKPMSChip('${s}',${k.id},'${escAttr(short)}','${c}')">
+        <span class="opt-check" id="optCheck_${s}_${k.id}">${sel?'✔':''}</span>${escHtml(short)}</div>`;
+    });
+  }
+  optsEl.innerHTML=h;
+}
+
+function toggleKPMSChip(s,id,shortText,color){
+  if(!_kpMSState[s])_kpMSState[s]=[];
+  const idx=_kpMSState[s].indexOf(id);
+  if(idx>-1){_kpMSState[s].splice(idx,1);}
+  else{_kpMSState[s].push(id);}
+  // 更新已选chips
+  const selEl=document.getElementById('kpMSSel_'+s);
+  if(selEl){
+    let ch='';
+    _kpMSState[s].forEach(kid=>{
+      const kp=getKP(s).find(x=>x.id===kid);
+      if(kp){
+        const sht=kp.text.length>18?kp.text.substring(0,18)+'…':kp.text;
+        ch+=`<span class="kp-ms-chip" style="background:${color}" onclick="toggleKPMSChip('${s}',${kid},'','${color}')">
+          ${escHtml(sht)}<span class="chip-x">×</span></span>`;
+      }
+    });
+    selEl.innerHTML=ch;
+  }
+  // 更新计数
+  const cntEl=document.getElementById('kpMSCount_'+s);
+  if(cntEl)cntEl.textContent=`已选 ${_kpMSState[s].length} 个知识点`;
+  // 刷新下拉列表（更新勾选状态）
+  filterKPMS(s);
+}
+
+// 点击外部关闭下拉
+document.addEventListener('click',function(e){
+  ['stat','math','poli'].forEach(s=>{
+    const wrap=document.getElementById('kpMS_'+s);
+    const drop=document.getElementById('kpMSDrop_'+s);
+    if(wrap&&drop&&!wrap.contains(e.target)){drop.classList.remove('open');}
+  });
+});
+
+// ==================== AUTO-GEN ANALYSIS (自动生成解析) ====================
+function autoGenAnalysis(s){
+  const tEl=document.getElementById('exText_'+s);
+  const aEl=document.getElementById('exAnalysis_'+s);
+  const btn=document.getElementById('autoGenBtn_'+s);
+  const text=tEl?tEl.value.trim():'';
+  if(!text){showToast('请先输入例题内容','error');return}
+  btn.disabled=true;btn.textContent='⏳ 生成中…';
+  // 获取关联知识点
+  const ids=getSelectedKPMSIds(s);
+  const kps=getKP(s).filter(k=>ids.includes(k.id));
+  const kpNames=kps.length?kps.map(k=>k.text.substring(0,20)).join('、'):'相关知识点';
+  // 根据题目内容推断类型并生成模板解析
+  setTimeout(()=>{
+    const analysis=buildAnalysis(text,kpNames,s);
+    if(aEl){aEl.value=analysis;}
+    btn.disabled=false;btn.textContent='🤖 自动生成解析';
+    showToast('解析已生成，请检查并修改','info');
+  },600);
+}
+
+function buildAnalysis(text,kpNames,subj){
+  const t=text.toLowerCase();
+  // 判断是否含有数学计算符号/公式
+  const hasMath=/[∫∑∏lim→∂∇=≤≥±∞√]/u.test(text)||/\blim\b|d[xy]|sum|integral/i.test(text);
+  // 判断是否是求极限
+  const isLimit=/lim|极限/.test(t);
+  const isIntegral=/∫|积分|integral/.test(t);
+  const isProb=/概率|P\(|分布|期望|方差|E\(|D\(/.test(text);
+  const isRegress=/回归|r²|R²|最小二乘|残差/.test(text);
+  const isHyp=/假设检验|H₀|H₀|p值|α|显著/.test(text);
+  const isPhilos=/辩证|矛盾|认识|实践|唯物|价值/.test(text);
+
+  let steps='';
+  if(isLimit){
+    steps=`【解题思路】\n本题考查极限的计算方法。\n\n【解题步骤】\n1. 判断极限类型（0/0型 / ∞/∞型 / 1^∞型等）\n2. 选择适当方法：\n   • 等价无穷小替换：适用于乘除结构\n   • 洛必达法则：对分子分母分别求导\n   • 变量替换：令 t = 1/x 等\n3. 代入计算，化简得结果\n\n【关键知识点】\n涉及知识点：${kpNames}\n\n【注意事项】\n• 使用洛必达前需验证是 0/0 或 ∞/∞ 型\n• 等价替换只适用于乘积项，加减项中慎用`;
+  } else if(isIntegral){
+    steps=`【解题思路】\n本题考查积分的计算，涉及：${kpNames}。\n\n【解题步骤】\n1. 判断积分类型（不定积分 / 定积分 / 反常积分）\n2. 选择积分方法：\n   • 凑微分法（换元法）：识别 f'(x)dx 结构\n   • 分部积分：∫u dv = uv - ∫v du，口诀"反对幂指三"\n   • 三角代换：处理 √(a²-x²) 等根式\n3. 利用牛顿-莱布尼茨公式计算定积分上下限\n4. 化简得最终结果\n\n【注意事项】\n• 分部积分中 u 的选取按"对数>反三角>幂>指数>三角"优先级`;
+  } else if(isProb){
+    steps=`【解题思路】\n本题考查概率论相关内容，涉及：${kpNames}。\n\n【解题步骤】\n1. 明确随机变量的分布类型\n2. 写出对应的分布律或密度函数\n3. 利用期望/方差公式计算：\n   • E(X) = Σxᵢpᵢ（离散型） 或 ∫xf(x)dx（连续型）\n   • D(X) = E(X²) - [E(X)]²\n4. 代入数值计算得结果\n\n【关键公式】\n• 正态分布 N(μ,σ²)：E(X)=μ，D(X)=σ²\n• 二项分布 B(n,p)：E(X)=np，D(X)=np(1-p)\n• 泊松分布 P(λ)：E(X)=D(X)=λ`;
+  } else if(isRegress){
+    steps=`【解题思路】\n本题考查回归分析，涉及：${kpNames}。\n\n【解题步骤】\n1. 建立回归模型 ŷ = b₀ + b₁x\n2. 用最小二乘法估计参数：\n   b₁ = Σ(xᵢ-x̄)(yᵢ-ȳ) / Σ(xᵢ-x̄)²\n   b₀ = ȳ - b₁x̄\n3. 计算决定系数 R² = SSR/SST ∈ [0,1]\n4. 进行显著性检验（F检验整体，t检验系数）\n\n【结果解释】\n• R² 越接近1，模型拟合越好\n• 回归系数显著（p<α）说明自变量有线性解释力`;
+  } else if(isHyp){
+    steps=`【解题思路】\n本题考查假设检验，涉及：${kpNames}。\n\n【解题步骤】\n1. 建立假设：H₀（原假设）vs H₁（备择假设）\n2. 选择检验方法（z检验/t检验/F检验/卡方检验）\n3. 计算检验统计量\n4. 确定拒绝域或计算P值\n5. 做出统计决策：\n   • P < α → 拒绝 H₀\n   • P ≥ α → 不拒绝 H₀\n\n【注意事项】\n• σ已知用z检验，σ未知小样本用t检验\n• "拒绝H₀"不等于"H₁为真"，只是统计意义上有显著差异`;
+  } else if(isPhilos){
+    steps=`【解题思路】\n本题考查思想政治相关内容，涉及：${kpNames}。\n\n【审题要点】\n1. 准确识别题目考查的核心概念\n2. 注意区分易混淆表述（如"推翻封建君主专制制度"≠"推翻封建制度"）\n3. 排除明显错误的干扰选项\n\n【解析】\n• 关键词对应的原理/观点：见教材原文表述\n• 错误选项分析：通常混淆概念层级或夸大/缩小结论\n\n【记忆口诀】\n将核心内容转化为便于记忆的要点，结合历年真题反复巩固`;
+  } else {
+    steps=`【解题思路】\n本题涉及知识点：${kpNames}。\n\n【解题步骤】\n1. 仔细审题，明确已知条件与求解目标\n2. 回忆相关公式与定理\n3. 建立解题框架，按步骤推导\n4. 验证结果的合理性\n\n【关键知识点回顾】\n${kpNames}\n\n【常见误区】\n• 注意审清题干条件，避免遗漏限制条件\n• 计算步骤要完整，中间过程不可省略\n\n【总结】\n本题综合考查了${kpNames}等核心内容，解题关键在于正确识别题型并灵活运用相关公式。`;
+  }
+  return steps;
+}
+
+// ==================== RENDER ALL ====================
+function renderAll(s){renderKP(s);renderQG(s);renderFramework(s);renderEX(s)}
+
+// ==================== UTILITIES ====================
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function escAttr(s){return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
+function escSvg(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function truncate(s,n){return s.length>n?s.substring(0,n)+'…':s}
+function lighten(hex,pct){let r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);r=Math.min(255,r+Math.round((255-r)*pct/100));g=Math.min(255,g+Math.round((255-g)*pct/100));b=Math.min(255,b+Math.round((255-b)*pct/100));return '#'+[r,g,b].map(x=>x.toString(16).padStart(2,'0')).join('')}
+function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b}
+
+// ==================== INIT PRESETS ====================
+function initPresets(){
+  const d=loadData();
+  ['stat','math','poli'].forEach(s=>{
+    if(!d[s]||!d[s].kp||!d[s].kp.length){
+      PRESET[s].forEach(t=>addKP(s,t));
+    }
+  });
+}
+
+// ==================== START ====================
+initPresets();
+updateHomeCounts();
+</script>
+</body>
+</html>
